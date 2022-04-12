@@ -9,15 +9,71 @@ CREATE DATABASE kahryman;
 
 SET client_encoding TO 'UTF-8';
 
-CREATE EXTENSION IF NOT EXISTS 'uuid-ossp';
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 
 CREATE TABLE languages(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "name" CHARACTER VARYING(25) NOT NULL,
-    "short_name" CHARACTER VARYING(5) NOT NULL
+    "short_name" CHARACTER VARYING(5) NOT NULL,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
     UNIQUE("short_name")
+);
+
+CREATE TABLE "image"(
+    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
+    "image_path" CHARACTER VARYING(75) NOT NULL,
+    "role" CHARACTER VARYING(25) NOT NULL,
+    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
+);
+
+CREATE TABLE "gallery"(
+    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
+    "gallery_path" CHARACTER VARYING(75) NOT NULL,
+    "type" CHARACTER VARYING(25) NOT NULL,
+    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
+);
+
+
+CREATE TABLE "phone_numbers"(
+    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
+    "number" CHARACTER VARYING(25) NOT NULL,
+    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
+);
+
+CREATE TABLE "mails"(
+    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
+    "mail" CHARACTER VARYING(50) NOT NULL,
+    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
+);
+
+CREATE TABLE "footer"(
+    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
+    "lang_id" uuid NOT NULL,
+    "text" CHARACTER VARYING(200) NOT NULL,
+    "right" CHARACTER VARYING(75) NOT NULL,
+    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
+    CONSTRAINT footer_lang_id_fk
+        FOREIGN KEY("lang_id")
+            REFERENCES languages("id")
+                ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE "home_translation"(
+    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
+    "lang_id" uuid NOT NULL,
+    "image_text" TEXT NOT NULL,
+    "topic_title" CHARACTER VARYING(25) NOT NULL,
+    "faciliti_title_s" CHARACTER VARYING(25) NOT NULL,
+    "faciliti_title_b" CHARACTER VARYING(25) NOT NULL,
+    "faciliti_content" TEXT NOT NULL,
+    "agencie_title" CHARACTER VARYING(25) NOT NULL,
+    "agencie_content" TEXT NOT NULL,
+    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
+    CONSTRAINT home_translation_lang_id_fk
+        FOREIGN KEY("lang_id")
+            REFERENCES languages("id")
+                ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE contact_translation(
@@ -184,57 +240,15 @@ CREATE TABLE "topics_translations"(
                 ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-
-CREATE TABLE "footer"(
+CREATE TABLE "admins"(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "lang_id" uuid NOT NULL,
-    "text" CHARACTER VARYING(200) NOT NULL,
-    "mail" CHARACTER VARYING(50) NOT NULL,
-    "right" CHARACTER VARYING(75) NOT NULL,
-    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
-    CONSTRAINT footer_lang_id_fk
-        FOREIGN KEY("lang_id")
-            REFERENCES languages("id")
-                ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE TABLE "home_translation"(
-    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "lang_id" uuid NOT NULL,
-    "image_text" TEXT NOT NULL,
-    "topic_title" CHARACTER VARYING(25) NOT NULL,
-    "faciliti_title_s" CHARACTER VARYING(25) NOT NULL,
-    "faciliti_title_b" CHARACTER VARYING(25) NOT NULL,
-    "faciliti_content" TEXT NOT NULL,
-    "agencie_title" CHARACTER VARYING(25) NOT NULL,
-    "agencie_content" TEXT NOT NULL,
-    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
-    CONSTRAINT home_translation_lang_id_fk
-        FOREIGN KEY("lang_id")
-            REFERENCES languages("id")
-                ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE TABLE "image"(
-    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "image_path" CHARACTER VARYING(75) NOT NULL,
+    "username" CHARACTER VARYING(25) NOT NULL,
     "role" CHARACTER VARYING(25) NOT NULL,
+    "email" CHARACTER VARYING(50) NOT NULL,
+    "password" CHARACTER VARYING(150) NOT NULL,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
 );
 
-CREATE TABLE "gallery"(
-    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "gallery_path" CHARACTER VARYING(75) NOT NULL,
-    "role" CHARACTER VARYING(25) NOT NULL,
-    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
-);
-
-
-CREATE TABLE "phone_number"(
-    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "number" CHARACTER VARYING(25) NOT NULL,
-    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
-);
-
+INSERT INTO admins(username, "role", email, "password") VALUES ('kahryman', 'superadmin', 'gadamgurbanaga@gmail.com','$2b$10$4g54bq0dVLzVrvT6q.s3cOYZ3FeSBrosY1QWxIB4Yo4N8szuPSiSa')
 
 
