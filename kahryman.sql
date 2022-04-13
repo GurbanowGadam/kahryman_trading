@@ -16,10 +16,12 @@ CREATE TABLE languages(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "name" CHARACTER VARYING(25) NOT NULL,
     "short_name" CHARACTER VARYING(5) NOT NULL,
+    "image_path" CHARACTER VARYING(75) NOT NULL,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
     UNIQUE("short_name")
 );
 
+    
 CREATE TABLE "image"(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "image_path" CHARACTER VARYING(75) NOT NULL,
@@ -41,11 +43,14 @@ CREATE TABLE "phone_numbers"(
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
 );
 
+
 CREATE TABLE "mails"(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "mail" CHARACTER VARYING(50) NOT NULL,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
 );
+
+INSERT INTO mails(mail) VALUES('info@kahrymantrading.com');
 
 CREATE TABLE "footer"(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
@@ -58,6 +63,11 @@ CREATE TABLE "footer"(
             REFERENCES languages("id")
                 ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+INSERT INTO footer("lang_id", "text", "right") 
+VALUES
+('b2365323-12f3-4f39-9846-100bdaf42271','footer_text...footer_text...en','ALL RIGHTS RESERVED_en.'),
+('06a0affa-2e7a-49f0-8cfe-7cdb06265229','footer_text...footer_text...ru','ALL RIGHTS RESERVED_ru.');
 
 CREATE TABLE "home_translation"(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
@@ -75,6 +85,11 @@ CREATE TABLE "home_translation"(
             REFERENCES languages("id")
                 ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+INSERT INTO home_translation(lang_id, image_text, topic_title, faciliti_title_s, faciliti_title_b, faciliti_content, agencie_title, agencie_content)
+VALUES
+('b2365323-12f3-4f39-9846-100bdaf42271','image_text....image_text....en','topic_title...en','faciliti_title_s...en','faciliti_title_b...en','faciliti_content...en','agencie_title...en','agencie_content...en'),
+('06a0affa-2e7a-49f0-8cfe-7cdb06265229','image_text....image_text....ru','topic_title...ru','faciliti_title_s...ru','faciliti_title_b...ru','faciliti_content...ru','agencie_title...ru','agencie_content...ru');
 
 CREATE TABLE contact_translation(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
@@ -95,63 +110,40 @@ CREATE TABLE contact_translation(
 );
 
 
-CREATE TABLE "about"(
-    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "image_path" CHARACTER VARYING(50) NOT NULL,
-    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
-);
-
 
 CREATE TABLE about_translation(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "lang_id" uuid NOT NULL,
-    "about_id" uuid NOT NULL,
     "small_title" CHARACTER VARYING(25) NOT NULL,
     "big_title" CHARACTER VARYING(25) NOT NULL,
     "content" TEXT NOT NULL,
-    "button_text" CHARACTER VARYING(10) NOT NULL,
+    "button_text" CHARACTER VARYING(25) NOT NULL,
+    "image_path" CHARACTER VARYING(75) NOT NULL,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
     CONSTRAINT about_translation_lang_id_fk
         FOREIGN KEY("lang_id")
             REFERENCES languages("id")
-                ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT about_translation_about_id_fk
-        FOREIGN KEY("about_id")
-            REFERENCES about("id")
                 ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-
-CREATE TABLE "products"(
-    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "image_path" CHARACTER VARYING(75) NOT NULL,
-    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
-);
+INSERT INTO about_translation(lang_id, small_title, big_title, content, button_text, image_path)
+VALUES
+('7a982366-ee48-4344-8c3b-33afea798205','about_small_title_en','about_big_title_en','about_content_en','button_text_en', 'image_path.jpg');
 
 
 CREATE TABLE products_translation(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "lang_id" uuid NOT NULL,
-    "product_id" uuid NOT NULL,
     "name" CHARACTER VARYING(25) NOT NULL,
     "text" TEXT NOT NULL,
+    "image_path" CHARACTER VARYING(75) NOT NULL,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
     CONSTRAINT products_translation_lang_id_fk
         FOREIGN KEY("lang_id")
             REFERENCES languages("id")
-                ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT products_translation_product_id_fk
-        FOREIGN KEY("product_id")
-            REFERENCES products("id")
                 ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-
-CREATE TABLE menu(
-    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "name" CHARACTER VARYING(25) NOT NULL,
-    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
-);
 
 CREATE TABLE menu_translation(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
@@ -168,42 +160,39 @@ CREATE TABLE menu_translation(
 CREATE TABLE header_text_translation(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "lang_id" uuid NOT NULL,
-    "menu_id" uuid NOT NULL,
+    "menu" CHARACTER VARYING(15) NOT NULL,
     "small_text" CHARACTER VARYING(25) NOT NULL,
     "text" CHARACTER VARYING(250) NOT NULL,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
     CONSTRAINT header_text_translation_lang_id_fk
         FOREIGN KEY("lang_id")
             REFERENCES languages("id")
-                ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT header_text_translation_menu_id_fk
-        FOREIGN KEY("menu_id")
-            REFERENCES menu("id")
                 ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
 CREATE TABLE header_image(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "menu_id" uuid NOT NULL,
+    "menu" CHARACTER VARYING(15) NOT NULL,
     "image_path" CHARACTER VARYING(75) NOT NULL,
-    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
-    CONSTRAINT header_image_menu_id_fk
-        FOREIGN KEY("menu_id")
-            REFERENCES menu("id")
-                ON DELETE CASCADE ON UPDATE CASCADE
+    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
 );
 
-CREATE TABLE locasions(
+CREATE TABLE "address"(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "lang_id" uuid NOT NULL,
-    "locasion" CHARACTER VARYING(100) NOT NULL,
+    "address" CHARACTER VARYING(100) NOT NULL,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
     CONSTRAINT locasions_lang_id_fk
         FOREIGN KEY("lang_id")
             REFERENCES languages("id")
                 ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+INSERT INTO "address"(lang_id, address) 
+VALUES
+('b2365323-12f3-4f39-9846-100bdaf42271','address....address.....en'),
+('06a0affa-2e7a-49f0-8cfe-7cdb06265229','address....address.....ru');
 
 CREATE TABLE "statistics"(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
@@ -217,26 +206,18 @@ CREATE TABLE "statistics"(
                 ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE "topics"(
-    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "image_path" CHARACTER VARYING(75) NOT NULL,
-    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
-);
+
 
 CREATE TABLE "topics_translations"(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "lang_id" uuid NOT NULL,
-    "topic_id" uuid NOT NULL,
     "title" CHARACTER VARYING(25) NOT NULL,
     "content" TEXT NOT NULL,
+    "image_path" CHARACTER VARYING(75) NOT NULL,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
     CONSTRAINT topics_translations_lang_id_fk
         FOREIGN KEY("lang_id")
             REFERENCES languages("id")
-                ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT topics_translations_topic_id_fk
-        FOREIGN KEY("topic_id")
-            REFERENCES topics("id")
                 ON DELETE CASCADE ON UPDATE CASCADE
 );
 

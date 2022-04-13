@@ -1,11 +1,17 @@
 require('dotenv').config()
 const express = require('express')
 const app = express()
+const fileUpload = require('express-fileupload')
 const morgan = require('morgan')
 const cors = require('cors')
 
 app.use(morgan('dev'))
 app.use(cors())
+
+app.use(fileUpload({
+    limits: { fileSize: 50 * 1024 * 1024 },
+}));
+
 
 app.use('/', function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
