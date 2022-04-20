@@ -328,7 +328,6 @@ const get_contact_id = async (req, res) => {
 const add_contact = async (req, res) => {
   try {
     const { translations } = req.body;
-    //const { image } = req.files;
     const result = await adminQuery.q_add_contact(translations);
     if (result != "false") {
       res.status(status.OK).json({ msg: "add successfull!" });
@@ -342,35 +341,8 @@ const add_contact = async (req, res) => {
 
 const save_contact = async (req, res) => {
   try {
-    ////.........
-    const {
-      title,
-      title_address,
-      name,
-      company_name,
-      mail,
-      subject,
-      message,
-      button_text,
-      id,
-    } = req.body;
-    const { header_small_text, header_text } = req.body;
-    const { header_image } = req.files;
-    const result = await adminQuery.q_save_contact(
-      [
-        title,
-        title_address,
-        name,
-        company_name,
-        mail,
-        subject,
-        message,
-        button_text,
-        id,
-      ],
-      [header_small_text, header_text],
-      header_image
-    );
+    const { translations } = req.body;
+    const result = await adminQuery.q_save_contact(translations);
     if (result != "false") {
       res.status(status.OK).json({ msg: "save successfull" });
     } else {
@@ -399,7 +371,7 @@ const get_about_id = async (req, res) => {
 const add_about = async (req, res) => {
   try {
     const { translations, image_path } = req.body;
-    //const { image } = req.files;
+    console.log(image_path);
     const result = await adminQuery.q_add_about(translations, image_path);
     if (result != "false") {
       res.status(status.OK).json({ msg: "add successfull!" });
@@ -413,12 +385,11 @@ const add_about = async (req, res) => {
 
 const save_about = async (req, res) => {
   try {
-    const { small_title, big_title, content, button_text, id } = req.body;
-    const { image } = req.files;
-    const result = await adminQuery.q_save_about(
-      [small_title, big_title, content, button_text, id],
-      image
-    );
+    const translations = JSON.parse(req.body.translations);
+    const image = req.files.image ? req.files.image : null;
+    console.log("image =>", image);
+    console.log("translations =>", translations);
+    const result = await adminQuery.q_save_about(translations, image);
     if (result != "false") {
       res.status(status.OK).json({ msg: "save succesfull!" });
     } else {

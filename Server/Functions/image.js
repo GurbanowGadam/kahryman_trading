@@ -1,8 +1,6 @@
-import sharp from "sharp";
-import fs from "fs";
-import path from "path";
-// import { now } from 'moment'
-import { error } from "console";
+const sharp = require("sharp");
+const fs = require("fs");
+const path = require("path");
 
 function DeleteFile(imagepath) {
   if (fs.existsSync(imagepath)) {
@@ -14,13 +12,6 @@ function DeleteFile(imagepath) {
         console.log("FILE deleted");
       }
     });
-    // fs.rm(imagepath, { recursive: true }, async (error) => {
-    //     if (error) {
-    //         console.log('file deleted Error :' + error)
-    //     } else {
-    //         console.log('FILE deleted')
-    //     }
-    // })
   } else {
     console.log("Dosnt the file");
   }
@@ -30,21 +21,12 @@ const OneImageUploadMV = (image, id, img_nmb, folder_name) => {
   var pwd = process.cwd();
 
   return new Promise((resolve) => {
-    if (!fs.existsSync(pwd + "/uploads/" + folder_name + "/" + id + "/")) {
-      fs.mkdirSync(pwd + "/uploads/" + folder_name + "/" + id + "/");
+    if (!fs.existsSync(pwd + "/upload/" + folder_name + "/" + id + "/")) {
+      fs.mkdirSync(pwd + "/upload/" + folder_name + "/" + id + "/");
     }
 
     const timePath = Date.now();
-    const pathMV =
-      pwd +
-      "/uploads/" +
-      folder_name +
-      "/" +
-      id +
-      "/" +
-      img_nmb +
-      "-" +
-      timePath;
+    const pathMV = pwd + "/upload/" + folder_name + "/" + timePath;
     image.mv(pathMV, (error) => {
       if (error) {
         resolve(false);
@@ -67,37 +49,10 @@ const OneImageUploadMV = (image, id, img_nmb, folder_name) => {
                   .withMetadata()
                   .toFile(pathMV + "-300.jpg", (error) => {
                     // ---------------------
-                    sharp(pathMV)
-                      .resize({ width: 1000 })
-                      .jpeg({ quality: 100 })
-                      .withMetadata()
-                      .toFile(pathMV + "-1000.webp", (error) => {
-                        sharp(pathMV)
-                          .resize({ width: 700 })
-                          .jpeg({ quality: 100 })
-                          .withMetadata()
-                          .toFile(pathMV + "-700.webp", (error) => {
-                            sharp(pathMV)
-                              .resize({ width: 300 })
-                              .jpeg({ quality: 100 })
-                              .withMetadata()
-                              .toFile(pathMV + "-300.webp", (error) => {
-                                console.log("pathMV");
-                                console.log(pathMV);
-                                DeleteFile(pathMV);
-                                resolve(
-                                  "/uploads/" +
-                                    folder_name +
-                                    "/" +
-                                    id +
-                                    "/" +
-                                    img_nmb +
-                                    "-" +
-                                    timePath
-                                );
-                              });
-                          });
-                      });
+                    console.log("pathMV");
+                    console.log(pathMV);
+                    DeleteFile(pathMV);
+                    resolve("/upload/" + folder_name + "/" + timePath);
                   });
               });
           });
@@ -159,4 +114,10 @@ const FileUpload = (file, folder_name) => {
   });
 };
 
-export { OneImageUploadMV, DeleteImage, DeleteVideo, FileUpload, DeleteFile };
+module.exports = {
+  OneImageUploadMV,
+  DeleteImage,
+  DeleteVideo,
+  FileUpload,
+  DeleteFile,
+};

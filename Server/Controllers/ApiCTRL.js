@@ -10,12 +10,11 @@ const home = async (req, res) => {
     if (result != "false") {
       res.status(status.OK).json({
         header: result[0],
-        topics: result[1],
-        faciliti: result[2],
-        slider: result[3],
-        agens: result[4],
-        statistics: result[5],
-        footer: result[6],
+        faciliti: result[1],
+        slider: result[2],
+        agens: result[3],
+        statistics: result[4],
+        footer: result[5],
       });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
@@ -30,7 +29,9 @@ const about = async (req, res) => {
     const { lang } = req.params;
     const result = await apiQuery.get_about(lang);
     if (result != "false") {
-      res.status(status.OK).json({ data: result });
+      res
+        .status(status.OK)
+        .json({ data: result[0], header: result[1], footer: result[2] });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
     }
@@ -44,7 +45,9 @@ const product = async (req, res) => {
     const { lang } = req.params;
     const result = await apiQuery.get_product(lang);
     if (result != "false") {
-      res.status(status.OK).json({ data: result });
+      res
+        .status(status.OK)
+        .json({ data: result[0], header: result[1], footer: result[2] });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
     }
@@ -55,9 +58,11 @@ const product = async (req, res) => {
 
 const gallery = async (req, res) => {
   try {
-    const result = await apiQuery.get_gallery();
+    const result = await apiQuery.get_gallery(lang);
     if (result != "false") {
-      res.status(status.OK).json({ data: result });
+      res
+        .status(status.OK)
+        .json({ data: result[0], header: result[1], footer: result[2] });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
     }
@@ -71,20 +76,12 @@ const contact = async (req, res) => {
     const { lang } = req.params;
     const result = await apiQuery.get_contact(lang);
     if (result != "false") {
-      res.status(status.OK).json({ data: result });
+      res
+        .status(status.OK)
+        .json({ data: result[0], header: result[1], footer: result[2] });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
     }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
-const footer = async (req, res) => {
-  try {
-    const { lang } = req.params;
-    const result = await apiQuery.get_home();
-    res.status(status.OK).json({ data: rows });
   } catch (err) {
     res.status(status.ERROR).json({ msg: err.message });
   }
@@ -215,7 +212,7 @@ module.exports = {
   contact,
   gallery,
   product,
-  footer,
+
   topic_s,
   topic_33834,
   topic_46292,

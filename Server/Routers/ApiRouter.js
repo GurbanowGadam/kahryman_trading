@@ -12,7 +12,6 @@ router.get("/:lang/about-us", ApiCTRL.about);
 router.get("/:lang/gallery", ApiCTRL.gallery);
 router.get("/:lang/product", ApiCTRL.product);
 router.get("/:lang/contact", ApiCTRL.contact);
-router.get("/:lang/footer", ApiCTRL.footer);
 
 router.get("/contact-send", ApiCTRL.send_email);
 

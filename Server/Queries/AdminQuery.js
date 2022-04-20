@@ -322,7 +322,6 @@ const q_save_footer = async (params) => {
 //--------------home------------//
 const q_get_home = async () => {
   try {
-    const sql_2 = Q_Formatter(`SELECT * FROM home_translation;`);
     const sql = Q_Formatter(`WITH
     ht as (
       SELECT 
@@ -466,18 +465,18 @@ const q_get_contact_id = async (params) => {
   }
 };
 
-const q_add_contact = async (params) => {
+const q_add_contact = async (translations) => {
   try {
-    for (i = 0; i < params.length; i++) {
-      const lang_id = params[i].lang_id;
-      const title = params[i].title.title;
-      const title_address = params[i].title.title_address;
-      const name = params[i].title.name;
-      const company_name = params[i].title.company_name;
-      const mail = params[i].title.mail;
-      const subject = params[i].title.subject;
-      const message = params[i].title.message;
-      const button_text = params[i].title.button_text;
+    for (i = 0; i < translations.length; i++) {
+      const lang_id = translations[i].lang_id;
+      const title = translations[i].title.title;
+      const title_address = translations[i].title.title_address;
+      const name = translations[i].title.name;
+      const company_name = translations[i].title.company_name;
+      const mail = translations[i].title.mail;
+      const subject = translations[i].title.subject;
+      const message = translations[i].title.message;
+      const button_text = translations[i].title.button_text;
       const sql_ct = Q_Formatter(
         `insert into contact_translation(lang_id, title, title_address, name, 
           company_name, mail, subject, message, button_text  )
@@ -503,15 +502,36 @@ const q_add_contact = async (params) => {
   }
 };
 
-const q_save_contact = async (params, headers, image) => {
+const q_save_contact = async (translations) => {
   try {
-    const sql = Q_Formatter(
-      `UPDATE contact_translation SET 
-        title = ?, title_address = ?, name = ?, company_name = ?, mail = ?, 
-        subject = ?, message = ?, button_text = ?, created_at = clock_timestamp() WHERE id = ? RETURNING *;`,
-      params
-    );
-    const res = await query(sql, []);
+    for (i = 0; i < translations.length; i++) {
+      const id = translations[i].id;
+      const title = translations[i].title.title;
+      const title_address = translations[i].title.title_address;
+      const name = translations[i].title.name;
+      const company_name = translations[i].title.company_name;
+      const mail = translations[i].title.mail;
+      const subject = translations[i].title.subject;
+      const message = translations[i].title.message;
+      const button_text = translations[i].title.button_text;
+      const sql_ct = Q_Formatter(
+        `update contact_translation set title = ?, title_address = ?, 
+        name = ?, company_name = ?, mail = ?, subject = ?, message = ?, 
+        button_text = ? created_at = clock_timestamp() WHERE id = ? returning *;`,
+        [
+          title,
+          title_address,
+          name,
+          company_name,
+          mail,
+          subject,
+          message,
+          button_text,
+          id,
+        ]
+      );
+      var res_ct = await query(sql_ct, []);
+    }
     return res;
   } catch (err) {
     return "false";
@@ -525,7 +545,7 @@ const q_get_about = async () => {
       select
         sq_at.about_id, 
         json_build_object('small_title',sq_at.small_title,'big_title',sq_at.big_title) as title,
-        json_build_object('content',sq_at.content, 'button_text',sq_at.button_text) as text
+        json_build_object('content',sq_at.content) as text
       from about_translation as sq_at 
     ),
     at as (
@@ -557,7 +577,7 @@ const q_get_about_id = async (params) => {
   }
 };
 
-const q_add_about = async (params, image) => {
+const q_add_about = async (translations, image) => {
   try {
     if (image) {
       var image_path = await imageUpload.oneImageUpload(image, "about");
@@ -568,11 +588,11 @@ const q_add_about = async (params, image) => {
       );
       const res = await query(sql, []);
       const about_id = res.rows[0].id;
-      for (i = 0; i < params.length; i++) {
-        const lang_id = params[i].lang_id;
-        const small_title = params[i].title.small_title;
-        const big_title = params[i].title.big_title;
-        const content = params[i].text.content;
+      for (i = 0; i < translations.length; i++) {
+        const lang_id = translations[i].lang_id;
+        const small_title = translations[i].title.small_title;
+        const big_title = translations[i].title.big_title;
+        const content = translations[i].text.content;
         const sql_pt = Q_Formatter(
           `insert into about_translation(lang_id, about_id, small_title, big_title, content )
         values(?, ?, ?, ?, ?) returning *;`,
@@ -588,27 +608,38 @@ const q_add_about = async (params, image) => {
   }
 };
 
-const q_save_about = async (params, image) => {
+const q_save_about = async (translations, image, id) => {
   try {
-    const sql = Q_Formatter(
-      `UPDATE about_translation SET 
-        small_title = ?, big_title = ?, content = ?, button_text = ?,
-        created_at = clock_timestamp() WHERE id = ? RETURNING *;`,
-      params
-    );
-    const res = await query(sql, []);
     if (image) {
+      const sql_2 = `select image_path from about where id = '${translations.id}';`;
+      const res_2 = await query(sql_2, []);
       await imageUpload.Deletefile(
-        path.normalize(__dirname + "./../../" + res.rows[0].image_path)
+        path.normalize(__dirname + "./../../" + res_2.rows[0].image_path)
       );
       const image_path = await imageUpload.oneImageUpload(image, "about");
       const sql = Q_Formatter(
-        `UPDATE about_translation SET image_path = ?, created_at = clock_timestamp() WHERE id = ?;`,
-        [image_path, res.rows[0].id]
+        `UPDATE about SET image_path = ?, created_at = clock_timestamp() WHERE id = ? returning *;`,
+        [image_path, translations.id]
       );
-      await query(sql, []);
+      var res_a = await query(sql, []);
     }
-    return res;
+    const about_id = image ? res_a.rows[0].id : translations.id;
+    for (i = 0; i < translations.translations.length; i++) {
+      const sql_2 = Q_Formatter(
+        `UPDATE about_translation SET about_id = ?, small_title = ?, 
+      big_title = ?, content  = ?, created_at = clock_timestamp() WHERE id = ?;`,
+        [
+          about_id,
+          translations.translations[i].title.small_title,
+          translations.translations[i].title.big_title,
+          translations.translations[i].text.content,
+          translations.translations[i].id,
+        ]
+      );
+      var { rows } = await query(sql_2, []);
+    }
+
+    return rows;
   } catch (err) {
     console.log(err);
     return "false";

@@ -4,25 +4,25 @@ const { Q_Formatter } = require("./../Functions/QFormatter");
 const get_home = async (lang) => {
   try {
     const sql_header = Q_Formatter(
-      `
+      `WITH slider as (
         SELECT 
-            (SELECT json_agg(header_image.*) FROM header_image WHERE header_image.menu = $a4e$home$a4e$) as images,
-            (SELECT json_agg(header_text_translation.*) FROM header_text_translation WHERE 
-            header_text_translation.lang_id = (SELECT id FROM languages WHERE short_name = 'en') AND 
-            header_text_translation.header_image_id in (select id from header_image where menu = $a4e$home$a4e$ )  
-            ) as header_text 
-        FROM header_image WHERE menu = 'home'
+          hi.id,
+          hi.image_path,
+          htt.small_text,
+          htt.text
+        FROM header_image as hi
+        inner join header_text_translation as htt 
+        on htt.header_image_id = hi.id and htt.lang_id = (select id from languages where short_name = ?)
+        WHERE hi.menu = 'home' )
+      select 
+        ( select json_agg(slider.*) from slider) as slider,
+        ( select json_agg(menu_translation.*) from menu_translation where lang_id = (select id from languages where short_name = ?) ) as menu,
+        ( select json_agg(languages.*) from languages) as languages
+      from slider
     ;`,
-      [lang]
+      [lang, lang]
     );
     const res_header = await query(sql_header, []);
-    const sql_topic = Q_Formatter(
-      `SELECT *, (select topic_title from home_translation where lang_id = (SELECT id FROM languages WHERE short_name = 'en')),
-        (select image_path from image where role = 'topic_background') as topic_background
-        FROM topics_translations where lang_id = (SELECT id FROM languages WHERE short_name = 'en');`,
-      []
-    );
-    const res_topic = await query(sql_topic, []);
 
     const sql_faciliti = Q_Formatter(
       `SELECT 
@@ -31,36 +31,39 @@ const get_home = async (lang) => {
           home_translation.faciliti_title_b as big_title,
           home_translation.faciliti_text as text,
           (select json_agg(faciliti_images.*) from faciliti_images) as images
-       FROM home_translation WHERE lang_id = (SELECT id FROM languages WHERE short_name = 'en')`,
-      []
+       FROM home_translation WHERE lang_id = (SELECT id FROM languages WHERE short_name = ?)`,
+      [lang]
     );
     const res_faciliti = await query(sql_faciliti, []);
 
     const sql_slider = Q_Formatter(`select * from sliders`);
     const res_slider = await query(sql_slider, []);
 
-    const sql_agens =
-      Q_Formatter(`SELECT agencie_title as title, agencie_content as content  
-      FROM home_translation WHERE lang_id = (SELECT id FROM languages WHERE short_name = 'en');`);
+    const sql_agens = Q_Formatter(
+      `SELECT agencie_title as title, agencie_content as content  
+      FROM home_translation WHERE lang_id = (SELECT id FROM languages WHERE short_name = ?);`,
+      [lang]
+    );
     const res_agens = await query(sql_agens, []);
 
     const sql_statistics = Q_Formatter(
-      `SELECT * FROM statistics WHERE lang_id = (SELECT id FROM languages WHERE short_name = 'en');`
+      `SELECT * FROM statistics WHERE lang_id = (SELECT id FROM languages WHERE short_name = ?);`,
+      [lang]
     );
     const res_statistics = await query(sql_statistics, []);
 
     const sql_footer = Q_Formatter(
       `SELECT footer.*,
-      (select json_agg(address.*) from address where lang_id = (SELECT id FROM languages WHERE short_name = 'en') ) as address,
+      (select json_agg(address.*) from address where lang_id = (SELECT id FROM languages WHERE short_name = ?) ) as address,
       (select json_agg(phone_numbers.*) from phone_numbers) as phone_numbers,
       (select json_agg(mails.*) from mails) as mails
-       from footer where lang_id = (SELECT id FROM languages WHERE short_name = 'en'); `
+       from footer where lang_id = (SELECT id FROM languages WHERE short_name = ?); `,
+      [lang, lang]
     );
     const res_footer = await query(sql_footer, []);
 
     return [
       res_header.rows[0],
-      res_topic.rows,
       res_faciliti.rows[0],
       res_slider.rows,
       res_agens.rows[0],
@@ -84,44 +87,168 @@ const get_about = async (lang) => {
     );
     const res = await query(sql, []);
 
-    return res.rows[0];
+    const sql_header = Q_Formatter(
+      `WITH slider as (
+        SELECT 
+          hi.id,
+          hi.image_path,
+          htt.small_text,
+          htt.text
+        FROM header_image as hi
+        inner join header_text_translation as htt 
+        on htt.header_image_id = hi.id and htt.lang_id = (select id from languages where short_name = ?)
+        WHERE hi.menu = 'about' )
+      select 
+        ( select json_agg(slider.*) from slider) as slider,
+        ( select json_agg(menu_translation.*) from menu_translation where lang_id = (select id from languages where short_name = ?) ) as menu,
+        ( select json_agg(languages.*) from languages) as languages
+      from slider
+    ;`,
+      [lang, lang]
+    );
+    const res_header = await query(sql_header, []);
+
+    const sql_footer = Q_Formatter(
+      `SELECT footer.*,
+      (select json_agg(address.*) from address where lang_id = (SELECT id FROM languages WHERE short_name = ?) ) as address,
+      (select json_agg(phone_numbers.*) from phone_numbers) as phone_numbers,
+      (select json_agg(mails.*) from mails) as mails
+       from footer where lang_id = (SELECT id FROM languages WHERE short_name = ?); `,
+      [lang, lang]
+    );
+    const res_footer = await query(sql_footer, []);
+
+    return [res.rows[0], res_header.rows[0], res_footer.rows[0]];
   } catch (err) {
     console.log(err);
     return "false";
   }
 };
 
-const get_product = async () => {
+const get_product = async (lang) => {
   try {
     const sql = Q_Formatter(`SELECT products.image_path,
     (select json_agg(products_translation.*) as products from products_translation where lang_id = (SELECT id FROM languages WHERE short_name = 'en') ) 
     from products; `);
     const res = await query(sql, []);
 
-    return res.rows[0];
+    const sql_header = Q_Formatter(
+      `WITH slider as (
+        SELECT 
+          hi.id,
+          hi.image_path,
+          htt.small_text,
+          htt.text
+        FROM header_image as hi
+        inner join header_text_translation as htt 
+        on htt.header_image_id = hi.id and htt.lang_id = (select id from languages where short_name = ?)
+        WHERE hi.menu = 'product' )
+      select 
+        ( select json_agg(slider.*) from slider) as slider,
+        ( select json_agg(menu_translation.*) from menu_translation where lang_id = (select id from languages where short_name = ?) ) as menu
+      from slider
+    ;`,
+      [lang, lang]
+    );
+    const res_header = await query(sql_header, []);
+
+    const sql_footer = Q_Formatter(
+      `SELECT footer.*,
+      (select json_agg(address.*) from address where lang_id = (SELECT id FROM languages WHERE short_name = ?) ) as address,
+      (select json_agg(phone_numbers.*) from phone_numbers) as phone_numbers,
+      (select json_agg(mails.*) from mails) as mails
+       from footer where lang_id = (SELECT id FROM languages WHERE short_name = ?); `,
+      [lang, lang]
+    );
+    const res_footer = await query(sql_footer, []);
+
+    return [res.rows, res_header.rows[0], res_footer.rows[0]];
   } catch (err) {
     console.log(err);
     return "false";
   }
 };
 
-const get_gallery = async () => {
+const get_gallery = async (lang) => {
   try {
     const sql = Q_Formatter(`SELECT * FROM gallery;`);
     const res = await query(sql, []);
 
-    return res.rows;
+    const sql_header = Q_Formatter(
+      `WITH slider as (
+        SELECT 
+          hi.id,
+          hi.image_path,
+          htt.small_text,
+          htt.text
+        FROM header_image as hi
+        inner join header_text_translation as htt 
+        on htt.header_image_id = hi.id and htt.lang_id = (select id from languages where short_name = ?)
+        WHERE hi.menu = 'gallery' )
+      select 
+        ( select json_agg(slider.*) from slider) as slider,
+        ( select json_agg(menu_translation.*) from menu_translation where lang_id = (select id from languages where short_name = ?) ) as menu,
+        ( select json_agg(languages.*) from languages) as languages
+      from slider
+    ;`,
+      [lang, lang]
+    );
+    const res_header = await query(sql_header, []);
+
+    const sql_footer = Q_Formatter(
+      `SELECT footer.*,
+      (select json_agg(address.*) from address where lang_id = (SELECT id FROM languages WHERE short_name = ?) ) as address,
+      (select json_agg(phone_numbers.*) from phone_numbers) as phone_numbers,
+      (select json_agg(mails.*) from mails) as mails
+       from footer where lang_id = (SELECT id FROM languages WHERE short_name = ?); `,
+      [lang, lang]
+    );
+    const res_footer = await query(sql_footer, []);
+
+    return [res.rows, res_header.rows[0], res_footer.rows[0]];
   } catch (err) {}
 };
 
-const get_contact = async () => {
+const get_contact = async (lang) => {
   try {
     const sql = Q_Formatter(
-      `SELECT * FROM contact_translation where lang_id = (SELECT id FROM languages WHERE short_name = 'en');`
+      `SELECT * FROM contact_translation where lang_id = (SELECT id FROM languages WHERE short_name = ?);`,
+      [lang]
     );
     const res = await query(sql, []);
 
-    return res.rows[0];
+    const sql_header = Q_Formatter(
+      `WITH slider as (
+        SELECT 
+          hi.id,
+          hi.image_path,
+          htt.small_text,
+          htt.text
+        FROM header_image as hi
+        inner join header_text_translation as htt 
+        on htt.header_image_id = hi.id and htt.lang_id = (select id from languages where short_name = ?)
+        WHERE hi.menu = 'contact' )
+      select 
+        ( select json_agg(slider.*) from slider) as slider,
+        ( select json_agg(menu_translation.*) from menu_translation where lang_id = (select id from languages where short_name = ?) ) as menu,
+        ( select json_agg(languages.*) from languages) as languages
+      from slider
+    ;`,
+      [lang, lang]
+    );
+    const res_header = await query(sql_header, []);
+
+    const sql_footer = Q_Formatter(
+      `SELECT footer.*,
+      (select json_agg(address.*) from address where lang_id = (SELECT id FROM languages WHERE short_name = ?) ) as address,
+      (select json_agg(phone_numbers.*) from phone_numbers) as phone_numbers,
+      (select json_agg(mails.*) from mails) as mails
+       from footer where lang_id = (SELECT id FROM languages WHERE short_name = ?); `,
+      [lang, lang]
+    );
+    const res_footer = await query(sql_footer, []);
+
+    return [res.rows[0], res_header.rows[0], res_footer.rows[0]];
   } catch (err) {
     return "false";
   }
