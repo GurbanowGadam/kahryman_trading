@@ -1,0 +1,54 @@
+
+
+
+
+
+
+{
+  "id": "9dd2ee42-13e6-43f0-a91b-b6ec2a221e58",
+  "lang_id": "7a982366-ee48-4344-8c3b-33afea798205",
+  "product_id": "ca4b1fd8-845c-4e51-ac20-bf88badbda8f",
+  "name": "name_en_1",
+  "text": "text_en_1",
+  "created_at": "2022-04-16T10:19:57.961347+03:00"
+}
+
+product
+{
+  "id": "9dd2ee42-13e6-43f0-a91b-b6ec2a221e58",
+  "lang_id": "7a982366-ee48-4344-8c3b-33afea798205",
+  "product_id": "ca4b1fd8-845c-4e51-ac20-bf88badbda8f",
+  "text" : {
+    "name": "name_en_1",
+    "text": "text_en_1",
+  },
+  "created_at": "2022-04-16T10:19:57.961347+03:00"
+}
+
+about
+{
+  "id": "9dd2ee42-13e6-43f0-a91b-b6ec2a221e58",
+  "lang_id": "7a982366-ee48-4344-8c3b-33afea798205",
+  "about_id": "ca4b1fd8-845c-4e51-ac20-bf88badbda8f",
+  "title" : {
+    "s_title": "name_en_1",
+    "b_title": "name_en_1",
+    "content": "text_en_1",
+  },
+  "created_at": "2022-04-16T10:19:57.961347+03:00"
+}
+
+home
+{
+  "id": "9dd2ee42-13e6-43f0-a91b-b6ec2a221e58",
+  "lang_id": "7a982366-ee48-4344-8c3b-33afea798205",
+  "about_id": "ca4b1fd8-845c-4e51-ac20-bf88badbda8f",
+  "text" : {
+    "topic_title": "name_en_1",
+    "image_text": "name_en_1",
+    "agence_title": "text_en_1",
+    "agence_text_1": "text_en_1",
+    "agence_text_2": "text_en_1",
+  },
+  "created_at": "2022-04-16T10:19:57.961347+03:00"
+}
