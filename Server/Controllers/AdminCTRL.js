@@ -298,8 +298,10 @@ const add_home = async (req, res) => {
 
 const save_home = async (req, res) => {
   try {
-    const { translations } = req.body;
-    const result = await adminQuery.q_save_home(translations);
+    const section = req.params.section;
+    const translations = JSON.parse(req.body.translations);
+    const image = req.files.image ? req.files.image : null;
+    const result = await adminQuery.q_save_home(translations, image, section);
     if (result != "false") {
       res.status(status.OK).json({ msg: "save successfull" });
     } else {
@@ -370,9 +372,9 @@ const get_about_id = async (req, res) => {
 
 const add_about = async (req, res) => {
   try {
-    const { translations, image_path } = req.body;
-    console.log(image_path);
-    const result = await adminQuery.q_add_about(translations, image_path);
+    const translations = JSON.parse(req.body.translations);
+    const image = req.files.image ? req.files.image : null;
+    const result = await adminQuery.q_add_about(translations, image);
     if (result != "false") {
       res.status(status.OK).json({ msg: "add successfull!" });
     } else {
@@ -418,8 +420,10 @@ const get_product_id = async (req, res) => {
 const add_product = async (req, res) => {
   try {
     console.log("body => ", req.body);
-    const { translations, image_path } = req.body;
-    const result = await adminQuery.q_add_product(translations, image_path);
+    console.log("files => ", req.files);
+    const image = req.files.image ? req.files.image : null;
+    const translations = JSON.parse(req.body.translations);
+    const result = await adminQuery.q_add_product(translations, image);
     if (result != "false") {
       res.status(status.OK).json({ msg: "add successfull!" });
     } else {
@@ -432,10 +436,10 @@ const add_product = async (req, res) => {
 
 const save_product = async (req, res) => {
   try {
-    console.log("body => ", req.body);
-    const { id, translations } = req.body;
+    console.log("req.body: ", req.body);
+    const translations = JSON.parse(req.body.translations);
     const image = req.files ? req.files.image : null;
-    const result = await adminQuery.q_save_product(id, translations, image);
+    const result = await adminQuery.q_save_product(translations, image);
     if (result != "false") {
       res.status(status.OK).json({ msg: "save successfull!" });
     } else {
@@ -448,8 +452,9 @@ const save_product = async (req, res) => {
 
 const delete_product = async (req, res) => {
   try {
-    const { id } = req.body;
-    const result = await adminQuery.q_delete_product([id]);
+    const id = req.body.id;
+    const image_path = req.body.image_path;
+    const result = await adminQuery.q_delete_product(id, image_path);
     if (result != "false") {
       res.status(status.OK).json({ msg: "delete successfull!" });
     } else {
@@ -826,9 +831,12 @@ const delete_faciliti_image = async (req, res) => {
 const get_func = async (req, res) => {
   try {
     const url = req.url;
+    console.log("url => ", url);
     const test = url.indexOf("/", 2);
     if (test != -1) {
+      console.log(test);
       var x = url.substring(5, test);
+      console.log(x);
     } else {
       var x = url.slice(5);
     }
@@ -867,7 +875,9 @@ const get_func = async (req, res) => {
         }
         break;
       case "home":
-        result = await adminQuery.q_get_home();
+        const section = req.params.section;
+        console.log("section: ", section);
+        result = await adminQuery.q_get_home(section);
         if (result != "false") {
           res.status(status.OK).json({ data: result });
         } else {

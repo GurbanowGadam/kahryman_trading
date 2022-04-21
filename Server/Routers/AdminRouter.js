@@ -36,9 +36,9 @@ router.get("/get-footer/:id", AdminCRTL.get_footer_id);
 router.post("/save-footer", AdminCRTL.save_footer);
 
 //-------------home----------------------//
-router.get("/get-home", AdminCRTL.get_func);
-router.get("/get-home/:id", AdminCRTL.get_home_id);
-router.post("/save-home", AdminCRTL.save_home);
+router.get("/get-home/:section", AdminCRTL.get_func);
+//router.get("/get-home/:id", AdminCRTL.get_home_id);
+router.post("/save-home/:section", AdminCRTL.save_home);
 
 //-------------contact----------------------//
 router.get("/get-contact", AdminCRTL.get_func);
@@ -48,6 +48,7 @@ router.post("/save-contact", AdminCRTL.save_contact);
 //-------------about----------------------//
 router.get("/get-about", AdminCRTL.get_func);
 router.get("/get-about/:id", AdminCRTL.get_about_id);
+router.post("/add-about", AdminCRTL.add_about);
 router.post("/save-about", AdminCRTL.save_about);
 
 //-------------product----------------------//

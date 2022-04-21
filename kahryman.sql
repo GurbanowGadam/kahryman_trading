@@ -283,16 +283,27 @@ CREATE TABLE "address"(
             REFERENCES languages("id")
                 ON DELETE CASCADE ON UPDATE CASCADE
 );
-
 CREATE TABLE "statistics"(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "lang_id" uuid NOT NULL,
-    "text" CHARACTER VARYING(50) NOT NULL,
     "number" NUMERIC(10) NOT NULL,
+    "title" CHARACTER VARYING(50) NOT NULL,
+    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
+);
+
+
+CREATE TABLE "statistics_translations"(
+    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
+    "lang_id" uuid NOT NULL,
+    "statistics_id" uuid NOT NULL,
+    "title" CHARACTER VARYING(50) NOT NULL,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
-    CONSTRAINT locasions_lang_id_fk
+    CONSTRAINT statistics_translations_lang_id_fk
         FOREIGN KEY("lang_id")
             REFERENCES languages("id")
+                ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT statistics_translations_statistics_id_fk
+        FOREIGN KEY("statistics_id")
+            REFERENCES statistics("id")
                 ON DELETE CASCADE ON UPDATE CASCADE
 );
 

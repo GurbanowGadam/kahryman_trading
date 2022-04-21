@@ -1,7 +1,7 @@
 const status = require("./../Utilis/status");
 const apiQuery = require("./../Queries/ApiQuery");
-// const nodemailer = require("nodemailer");
-// const validator = require("validator");
+const nodemailer = require("nodemailer");
+const validator = require("validator");
 
 const home = async (req, res) => {
   try {
@@ -58,6 +58,7 @@ const product = async (req, res) => {
 
 const gallery = async (req, res) => {
   try {
+    const lang = req.params;
     const result = await apiQuery.get_gallery(lang);
     if (result != "false") {
       res
@@ -139,10 +140,6 @@ const send_email = async (req, res) => {
         
             MESSAGE
         ${req.body.message} `;
-      const q = `
-                  INSERT INTO send_messages(name, email, title, message) 
-                  values('${req.body.name}','${req.body.email}','${req.body.subject}','${req.body.message}');
-                `;
 
       async function main() {
         // Generate test SMTP service account from ethereal.email
@@ -151,24 +148,23 @@ const send_email = async (req, res) => {
 
         // create reusable transporter object using the default SMTP transport
         let transporter = nodemailer.createTransport({
-          host: process.env.MAIL_HOST, //"smtp.gmail.com",
+          host: "smtp.gmail.com",
           port: 465,
           secure: true, // true for 465, false for other ports
           // service: 'gmail.com',
           auth: {
-            user: process.env.MAIL_USERNAME, // generated ethereal user
-            pass: process.env.MAIL_PASSWORD, // generated ethereal password
+            user: "gadamgurbanaga@gmail.com", //process.env.MAIL_USERNAME, // generated ethereal user
+            pass: "salam>1maryland", //process.env.MAIL_PASSWORD, // generated ethereal password
           },
         });
         console.log("MAILL");
         // send mail with defined transport object
         let info = await transporter.sendMail({
-          from: process.env.MAIL_FROM_ADDRESS, //'akmyradowakmuhammet21@gmail.com', // sender address
-          to: process.env.MAIL_FROM_ADDRESS, // list of receivers
-          // to: "akmyradowakmuhammet21@gmail.com", // list of receivers
-          subject: process.env.MAIL_SUBJECT, // Subject line
-          text: outputhtml, // plain text body
-          // html: outputhtml, // html body
+          from: "gadamgurbanaga@gmail.com", //process.env.MAIL_FROM_ADDRESS,
+          to: "gadamgurbanaga@gmail.com", //process.env.MAIL_FROM_ADDRESS,
+          subject: process.env.MAIL_SUBJECT,
+          text: outputhtml,
+          html: outputhtml,
         });
 
         console.log("Message sent: %s", info.messageId);
@@ -177,17 +173,12 @@ const send_email = async (req, res) => {
         // Preview only available when sending through an Ethereal account
         console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
         // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
-
-        const { rows } = await database.query(q, []);
-        res.send({ status: true });
+        res.status(200).json({ msg: "successfull!" });
       }
 
       main().catch((err) => {
         console.log(err);
-        res.send({
-          status: false,
-          msg: "Doesnt send your message",
-        });
+        res.status(500).json({ msg: err.message });
       });
     } else {
       console.log("email not correct");
@@ -196,14 +187,38 @@ const send_email = async (req, res) => {
         msg: "email not correct",
       });
     }
-  } catch (e) {
-    console.log(e);
-    res.status(500).send(e.message);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: err.message });
   }
 };
 
-module.exports = {
-  send_email,
+const header = async (req, res) => {
+  try {
+    const { lang, menu } = req.params;
+    const result = await apiQuery.get_header(lang, menu);
+    if (result != "false") {
+      res.status(status.OK).json({ data: result });
+    } else {
+      res.status(status.ERROR).json({ msg: "query error" });
+    }
+  } catch (err) {
+    res.status(status.ERROR).json({ msg: err.message });
+  }
+};
+
+const footer = async (req, res) => {
+  try {
+    const { lang } = req.params;
+    const result = await apiQuery.get_footer(lang);
+    if (result != "false") {
+      res.status(status.OK).json({ data: result });
+    } else {
+      res.status(status.ERROR).json({ msg: "query error" });
+    }
+  } catch (err) {
+    res.status(status.ERROR).json({ msg: err.message });
+  }
 };
 
 module.exports = {
@@ -218,4 +233,6 @@ module.exports = {
   topic_46292,
   topic_49617,
   send_email,
+  header,
+  footer,
 };

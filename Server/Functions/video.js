@@ -27,18 +27,12 @@ const videoUploadFFMPEG = async (video_path, to_format, size_w, pathMV) => {
   });
 };
 
-const videUploadMV = async (video, folder_name, id) => {
+const videUploadMV = async (video, folder_name) => {
   return new Promise((resolve) => {
     try {
       var pwd = process.cwd();
-      if (
-        !fs.existsSync(
-          path.normalize(__dirname + "./../../upload/" + folder_name)
-        )
-      ) {
-        fs.mkdirSync(
-          path.normalize(__dirname + "./../../upload/" + folder_name)
-        );
+      if (!fs.existsSync(pwd + "/upload/" + folder_name)) {
+        fs.mkdirSync(pwd + "/upload/" + folder_name);
       }
 
       var mime = "mp4";
@@ -51,19 +45,9 @@ const videUploadMV = async (video, folder_name, id) => {
           console.log("false");
           resolve(false);
         } else {
-          //resolve("/upload/" + folder_name + "/" + timePath);
+          resolve("upload/" + folder_name + "/" + timePath + "." + mime);
           console.log("TRUE");
           console.log(pathMV);
-          var result720 = await videoUploadFFMPEG(
-            pathMV + "." + mime,
-            "mp4",
-            "720",
-            pathMV
-          );
-          if (result720) {
-            resolve("/upload/" + folder_name + "/" + timePath + "-720.mp4");
-          }
-          console.log("-720 ", result720);
         }
       });
     } catch (err) {

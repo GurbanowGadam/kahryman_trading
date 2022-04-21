@@ -17,12 +17,12 @@ function DeleteFile(imagepath) {
   }
 }
 
-const OneImageUploadMV = (image, id, img_nmb, folder_name) => {
+const OneImageUploadMV = (image, folder_name) => {
   var pwd = process.cwd();
 
   return new Promise((resolve) => {
-    if (!fs.existsSync(pwd + "/upload/" + folder_name + "/" + id + "/")) {
-      fs.mkdirSync(pwd + "/upload/" + folder_name + "/" + id + "/");
+    if (!fs.existsSync(pwd + "/upload/" + folder_name + "/")) {
+      fs.mkdirSync(pwd + "/upload/" + folder_name + "/");
     }
 
     const timePath = Date.now();
@@ -52,7 +52,7 @@ const OneImageUploadMV = (image, id, img_nmb, folder_name) => {
                     console.log("pathMV");
                     console.log(pathMV);
                     DeleteFile(pathMV);
-                    resolve("/upload/" + folder_name + "/" + timePath);
+                    resolve("upload/" + folder_name + "/" + timePath);
                   });
               });
           });

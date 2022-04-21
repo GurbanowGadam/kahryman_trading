@@ -47,7 +47,9 @@ const get_home = async (lang) => {
     const res_agens = await query(sql_agens, []);
 
     const sql_statistics = Q_Formatter(
-      `SELECT * FROM statistics WHERE lang_id = (SELECT id FROM languages WHERE short_name = ?);`,
+      `SELECT stt.*, st.*  FROM statistics_translations as stt INNER JOIN statistics as st ON  
+      stt.statistics_id = st.id
+      WHERE lang_id = (SELECT id FROM languages WHERE short_name = ?);`,
       [lang]
     );
     const res_statistics = await query(sql_statistics, []);
@@ -323,6 +325,54 @@ const topics = async (data, lang) => {
   }
 };
 
+const get_header = async (lang, menu) => {
+  try {
+    const sql_header = Q_Formatter(
+      `WITH slider as (
+        SELECT 
+          hi.id,
+          hi.image_path,
+          htt.small_text,
+          htt.text
+        FROM header_image as hi
+        inner join header_text_translation as htt 
+        on htt.header_image_id = hi.id and htt.lang_id = (select id from languages where short_name = ?)
+        WHERE hi.menu = ? )
+      select 
+        ( select json_agg(slider.*) from slider) as slider,
+        ( select json_agg(menu_translation.*) from menu_translation where lang_id = (select id from languages where short_name = ?) ) as menu,
+        ( select json_agg(languages.*) from languages) as languages
+      from slider
+    ;`,
+      [lang, menu, lang]
+    );
+    const res_header = await query(sql_header, []);
+
+    return res_header.rows;
+  } catch (err) {
+    console.log(err);
+    return "false";
+  }
+};
+
+const get_footer = async (lang) => {
+  try {
+    const sql_footer = Q_Formatter(
+      `SELECT footer.*,
+      (select json_agg(address.*) from address where lang_id = (SELECT id FROM languages WHERE short_name = ?) ) as address,
+      (select json_agg(phone_numbers.*) from phone_numbers) as phone_numbers,
+      (select json_agg(mails.*) from mails) as mails
+       from footer where lang_id = (SELECT id FROM languages WHERE short_name = ?); `,
+      [lang, lang]
+    );
+    const res_footer = await query(sql_footer, []);
+
+    return res_footer.rows[0];
+  } catch (err) {
+    return "false";
+  }
+};
+
 module.exports = {
   get_home,
   get_gallery,
@@ -330,4 +380,6 @@ module.exports = {
   get_product,
   get_contact,
   topics,
+  get_header,
+  get_footer,
 };

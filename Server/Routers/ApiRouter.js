@@ -12,7 +12,9 @@ router.get("/:lang/about-us", ApiCTRL.about);
 router.get("/:lang/gallery", ApiCTRL.gallery);
 router.get("/:lang/product", ApiCTRL.product);
 router.get("/:lang/contact", ApiCTRL.contact);
+router.get("/:lang/header/:menu", ApiCTRL.header);
+router.get("/:lang/footer", ApiCTRL.footer);
 
-router.get("/contact-send", ApiCTRL.send_email);
+router.post("/contact-send", ApiCTRL.send_email);
 
 module.exports = router;
