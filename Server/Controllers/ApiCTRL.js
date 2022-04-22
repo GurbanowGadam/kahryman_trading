@@ -132,36 +132,32 @@ const send_email = async (req, res) => {
 
     if (email) {
       let outputhtml = `
-        Mail details
+       <h1> Mail details </h1>
         
-        Name:${req.body.name}
-        Email:${req.body.email}
-        Subject:${req.body.subject}
+      <p> Name:${req.body.name} </p>
+      <p> Email:${req.body.email} </p>
+      <p> Subject:${req.body.subject} </p>
         
-            MESSAGE
-        ${req.body.message} `;
+      <h> MESSAGE </h>
+      <p> ${req.body.message} </p>`;
 
       async function main() {
-        // Generate test SMTP service account from ethereal.email
-        // Only needed if you don't have a real mail account for testing
-        // let testAccount = await nodemailer.createTestAccount();
-
         // create reusable transporter object using the default SMTP transport
         let transporter = nodemailer.createTransport({
           host: "smtp.gmail.com",
           port: 465,
-          secure: true, // true for 465, false for other ports
+          secure: true,
           // service: 'gmail.com',
           auth: {
-            user: "gadamgurbanaga@gmail.com", //process.env.MAIL_USERNAME, // generated ethereal user
-            pass: "salam>1maryland", //process.env.MAIL_PASSWORD, // generated ethereal password
+            user: process.env.MAIL_USERNAME, // generated ethereal user
+            pass: process.env.MAIL_PASSWORD, // generated ethereal password
           },
         });
         console.log("MAILL");
         // send mail with defined transport object
         let info = await transporter.sendMail({
-          from: "gadamgurbanaga@gmail.com", //process.env.MAIL_FROM_ADDRESS,
-          to: "gadamgurbanaga@gmail.com", //process.env.MAIL_FROM_ADDRESS,
+          from: process.env.MAIL_FROM_ADDRESS,
+          to: process.env.MAIL_FROM_ADDRESS,
           subject: process.env.MAIL_SUBJECT,
           text: outputhtml,
           html: outputhtml,
@@ -178,18 +174,15 @@ const send_email = async (req, res) => {
 
       main().catch((err) => {
         console.log(err);
-        res.status(500).json({ msg: err.message });
+        res.status(status.OK).json({ msg: err.message });
       });
     } else {
       console.log("email not correct");
-      res.send({
-        status: false,
-        msg: "email not correct",
-      });
+      res.status(status.ERROR).json({ msg: "email not correct" });
     }
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: err.message });
+    res.status(status.ERROR).json({ msg: err.message });
   }
 };
 

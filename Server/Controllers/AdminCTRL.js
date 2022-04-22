@@ -19,7 +19,7 @@ const get_phone_id = async (req, res) => {
 const add_phone = async (req, res) => {
   try {
     const { phone_number } = req.body;
-    const result = await adminQuery.q_add_phone([phone_number]);
+    const result = await adminQuery.q_add_phone(phone_number);
     if (result != "false") {
       res.status(status.OK).json({ msg: "add successfull!" });
     } else {
@@ -33,7 +33,7 @@ const add_phone = async (req, res) => {
 const save_phone = async (req, res) => {
   try {
     const { phone_number, id } = req.body;
-    const result = await adminQuery.q_save_phone([id, phone_number]);
+    const result = await adminQuery.q_save_phone(phone_number, id);
     if (result != "false") {
       res.status(status.OK).json({ msg: "save successfull!" });
     } else {
@@ -47,7 +47,7 @@ const save_phone = async (req, res) => {
 const delete_phone = async (req, res) => {
   try {
     const { id } = req.body;
-    const result = await adminQuery.q_delete_phone([id]);
+    const result = await adminQuery.q_delete_phone(id);
     if (result != "false") {
       res.status(status.OK).json({ msg: "delete successfull!" });
     } else {
@@ -62,7 +62,7 @@ const delete_phone = async (req, res) => {
 const get_mail_id = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await adminQuery.q_get_mail_id([id]);
+    const result = await adminQuery.q_get_mail_id(id);
     if (result != "false") {
       res.status(status.OK).json({ data: result });
     } else {
@@ -76,7 +76,7 @@ const get_mail_id = async (req, res) => {
 const add_mail = async (req, res) => {
   try {
     const { mail } = req.body;
-    const result = await adminQuery.q_add_mail([mail]);
+    const result = await adminQuery.q_add_mail(mail);
     if (result != "false") {
       res.status(status.OK).json({ msg: "add successfull" });
     } else {
@@ -90,7 +90,7 @@ const add_mail = async (req, res) => {
 const save_mail = async (req, res) => {
   try {
     const { mail, id } = req.body;
-    const result = await adminQuery.q_save_mail();
+    const result = await adminQuery.q_save_mail(mail, id);
     if (result != "false") {
       res.status(status.OK).json({ msg: "save successfull" });
     } else {
@@ -104,7 +104,7 @@ const save_mail = async (req, res) => {
 const delete_mail = async (req, res) => {
   try {
     const { id } = req.body;
-    const result = await adminQuery.q_delete_mail();
+    const result = await adminQuery.q_delete_mail(id);
     if (result != "false") {
       res.status(status.OK).json({ msg: "delete successfull" });
     } else {
@@ -134,6 +134,8 @@ const add_gallery = async (req, res) => {
   try {
     const { type } = req.body;
     const { gallery } = req.files;
+    console.log(req.body);
+    console.log(req.files);
     const result = await adminQuery.q_add_gallery(type, gallery);
     if (result != "false") {
       res.status(status.OK).json({ msg: "add successfull!" });
@@ -147,7 +149,11 @@ const add_gallery = async (req, res) => {
 
 const save_gallery = async (req, res) => {
   try {
-    const result = await adminQuery.q_save_gallery();
+    console.log(req.body);
+    console.log(req.files);
+    const gallery = req.files ? req.files.gallery : null;
+    const translations = JSON.parse(req.body.translations);
+    const result = await adminQuery.q_save_gallery(translations, gallery);
     res.status(status.OK).json({ data: result });
   } catch (err) {
     res.status(status.ERROR).json({ msg: err.message });
@@ -181,7 +187,6 @@ const get_language_id = async (req, res) => {
 const add_language = async (req, res) => {
   try {
     const { name, short_name } = req.body;
-    const { image } = req.files;
     const result = await adminQuery.q_add_language([name, short_name], image);
     if (result != "false") {
       res.status(status.OK).json({ msg: "add succesfull" });
@@ -226,19 +231,6 @@ const delete_language = async (req, res) => {
 };
 
 //----------footer-----------------//
-const get_footer = async (req, res) => {
-  try {
-    const result = await adminQuery.q_get_footer();
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
 const get_footer_id = async (req, res) => {
   try {
     const { id } = req.params;
@@ -284,7 +276,12 @@ const get_home_id = async (req, res) => {
 
 const add_home = async (req, res) => {
   try {
-    const { translations } = req.body;
+    console.log(req.body);
+    console.log(req.files);
+    const section = req.params.section;
+    const translations = JSON.parse(req.body.translations);
+    console.log(translations);
+    const image = req.files ? req.files.image : null;
     const result = await adminQuery.q_add_home(translations);
     if (result != "false") {
       res.status(status.OK).json({ msg: "add successfull!" });
@@ -298,9 +295,12 @@ const add_home = async (req, res) => {
 
 const save_home = async (req, res) => {
   try {
+    console.log(req.body);
+    console.log(req.files);
     const section = req.params.section;
     const translations = JSON.parse(req.body.translations);
-    const image = req.files.image ? req.files.image : null;
+    console.log(translations);
+    const image = req.files ? req.files.image : null;
     const result = await adminQuery.q_save_home(translations, image, section);
     if (result != "false") {
       res.status(status.OK).json({ msg: "save successfull" });
@@ -308,6 +308,7 @@ const save_home = async (req, res) => {
       res.status(status.ERROR).json({ msg: "query error" });
     }
   } catch (err) {
+    console.log(err);
     res.status(status.ERROR).json({ msg: err.message });
   }
 };
@@ -343,7 +344,10 @@ const add_contact = async (req, res) => {
 
 const save_contact = async (req, res) => {
   try {
-    const { translations } = req.body;
+    console.log(req.body);
+    console.log(req.files);
+    const translations = JSON.parse(req.body.translations);
+    console.log(translations);
     const result = await adminQuery.q_save_contact(translations);
     if (result != "false") {
       res.status(status.OK).json({ msg: "save successfull" });
@@ -387,8 +391,10 @@ const add_about = async (req, res) => {
 
 const save_about = async (req, res) => {
   try {
+    console.log(req.body);
+    console.log(req.files);
     const translations = JSON.parse(req.body.translations);
-    const image = req.files.image ? req.files.image : null;
+    const image = req.files ? req.files.image : null;
     console.log("image =>", image);
     console.log("translations =>", translations);
     const result = await adminQuery.q_save_about(translations, image);
@@ -452,6 +458,7 @@ const save_product = async (req, res) => {
 
 const delete_product = async (req, res) => {
   try {
+    console.log(req.body);
     const id = req.body.id;
     const image_path = req.body.image_path;
     const result = await adminQuery.q_delete_product(id, image_path);
@@ -506,7 +513,15 @@ const add_header = async (req, res) => {
 
 const save_header = async (req, res) => {
   try {
-    const result = await adminQuery.q_save_header();
+    const menu = req.params.menu;
+    console.log(menu);
+    console.log("req.body", req.body);
+    console.log("req.files", req.files);
+    const translations = JSON.parse(req.body.translations);
+    console.log(translations);
+    const image = req.files ? req.files.image : null;
+    console.log(image);
+    const result = await adminQuery.q_save_header(translations, menu, image);
     res.status(status.OK).json({ data: result });
   } catch (err) {
     res.status(status.ERROR).json({ msg: err.message });
@@ -858,14 +873,6 @@ const get_func = async (req, res) => {
           res.status(status.ERROR).json({ msg: "query error" });
         }
         break;
-      case "gallery":
-        result = await adminQuery.q_get_gallery();
-        if (result != "false") {
-          res.status(status.OK).json({ data: result });
-        } else {
-          res.status(status.ERROR).json({ msg: "query error" });
-        }
-        break;
       case "language":
         result = await adminQuery.q_get_language();
         if (result != "false") {
@@ -902,6 +909,15 @@ const get_func = async (req, res) => {
         break;
       case "product":
         result = await adminQuery.q_get_product();
+        if (result != "false") {
+          res.status(status.OK).json({ data: result });
+        } else {
+          res.status(status.ERROR).json({ msg: "query error" });
+        }
+        break;
+      case "gallery":
+        const type = req.params.type;
+        result = await adminQuery.q_get_gallery(type);
         if (result != "false") {
           res.status(status.OK).json({ data: result });
         } else {
@@ -950,6 +966,15 @@ const get_func = async (req, res) => {
           res.status(status.ERROR).json({ msg: "query error" });
         }
         break;
+      case "footer":
+        const lang = req.params.lang;
+        result = await adminQuery.q_get_footer(lang);
+        if (result != "false") {
+          res.status(status.OK).json({ data: result });
+        } else {
+          res.status(status.ERROR).json({ msg: "query error" });
+        }
+        break;
     }
   } catch (err) {
     res.status(status.ERROR).json({ msg: err.message });
@@ -983,7 +1008,6 @@ module.exports = {
   delete_language,
 
   //---footer---
-  get_footer,
   get_footer_id,
   save_footer,
 

@@ -17,7 +17,7 @@ router.post("/save-mail", AdminCRTL.save_mail);
 router.post("/delete-mail", AdminCRTL.delete_mail);
 
 //-------------gallery----------------------//
-router.get("/get-gallery", AdminCRTL.get_func);
+router.get("/get-gallery/:type", AdminCRTL.get_func);
 router.get("/get-gallery/:id", AdminCRTL.get_gallery_id);
 router.post("/add-gallery", AdminCRTL.add_gallery);
 router.post("/save-gallery", AdminCRTL.save_gallery);
@@ -31,13 +31,14 @@ router.post("/save-language", AdminCRTL.save_language);
 router.post("/delete-language", AdminCRTL.delete_language);
 
 //-------------footer----------------------//
-router.get("/get-footer", AdminCRTL.get_footer);
+router.get("/get-footer", AdminCRTL.get_func);
 router.get("/get-footer/:id", AdminCRTL.get_footer_id);
 router.post("/save-footer", AdminCRTL.save_footer);
 
 //-------------home----------------------//
 router.get("/get-home/:section", AdminCRTL.get_func);
-//router.get("/get-home/:id", AdminCRTL.get_home_id);
+router.get("/get-home/:id", AdminCRTL.get_home_id);
+router.post("/add-home/:section", AdminCRTL.save_home);
 router.post("/save-home/:section", AdminCRTL.save_home);
 
 //-------------contact----------------------//
@@ -62,7 +63,7 @@ router.post("/delete-product", AdminCRTL.delete_product);
 router.get("/get-header/:menu", AdminCRTL.get_func);
 router.get("/get-header/:id", AdminCRTL.get_header_id);
 router.post("/add-header/:menu", AdminCRTL.add_header);
-router.post("/save-header", AdminCRTL.save_header);
+router.post("/save-header/:menu", AdminCRTL.save_header);
 router.post("/delete-header", AdminCRTL.delete_header);
 
 //-------------address----------------------//

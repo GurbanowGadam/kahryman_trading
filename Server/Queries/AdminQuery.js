@@ -1,7 +1,5 @@
 const { query } = require("./../Database/index");
 const { Q_Formatter } = require("./../Functions/QFormatter");
-const imageUpload = require("./../Functions/imageUpload");
-const { videoUpload } = require("./../Functions/videoUpload");
 const { videUploadMV } = require("./../Functions/video");
 const imageUP = require("./../Functions/image");
 const path = require("path");
@@ -30,11 +28,11 @@ const q_get_phone_id = async (params) => {
   }
 };
 
-const q_add_phone = async (params) => {
+const q_add_phone = async (number) => {
   try {
     const sql = Q_Formatter(
       `INSERT INTO phone_numbers(number) VALUES(?) RETURNING *;`,
-      params
+      [number]
     );
     const res = await query(sql, []);
     return res.rows[0];
@@ -43,11 +41,11 @@ const q_add_phone = async (params) => {
   }
 };
 
-const q_save_phone = async (params) => {
+const q_save_phone = async (number, id) => {
   try {
     const sql = Q_Formatter(
-      `UPDATE phone_numbers SET number = ? created_at = clock_timestamp() WHERE id = ? RETURNING *;`,
-      params
+      `UPDATE phone_numbers SET number = ? WHERE id = ? RETURNING *;`,
+      [number, id]
     );
     const res = await query(sql, []);
     return res.rows[0];
@@ -56,11 +54,11 @@ const q_save_phone = async (params) => {
   }
 };
 
-const q_delete_phone = async (params) => {
+const q_delete_phone = async (id) => {
   try {
     const sql = Q_Formatter(
       `DELETE FROM phone_numbers WHERE id = ? RETURNING *;`,
-      params
+      [id]
     );
     const res = await query(sql, []);
     return res.rows[0];
@@ -90,12 +88,11 @@ const q_get_mail_id = async (params) => {
   }
 };
 
-const q_add_mail = async (params) => {
+const q_add_mail = async (mail) => {
   try {
-    const sql = Q_Formatter(
-      `INSERT INTO mails(mail) VALUES(?) RETURNING *;`,
-      params
-    );
+    const sql = Q_Formatter(`INSERT INTO mails(mail) VALUES(?) RETURNING *;`, [
+      mail,
+    ]);
     const res = await query(sql, []);
     return res.rows[0];
   } catch (err) {
@@ -103,11 +100,11 @@ const q_add_mail = async (params) => {
   }
 };
 
-const q_save_mail = async (params) => {
+const q_save_mail = async (mail, id) => {
   try {
     const sql = Q_Formatter(
       `UPDATE mails SET number = ?, created_at = clock_timestamp() WHERE id = ? RETURNING *;`,
-      params
+      [mail, id]
     );
     const res = await query(sql, []);
     return res.rows[0];
@@ -116,12 +113,11 @@ const q_save_mail = async (params) => {
   }
 };
 
-const q_delete_mail = async (params) => {
+const q_delete_mail = async (id) => {
   try {
-    const sql = Q_Formatter(
-      `DELETE FROM mails WHERE id = ? RETURNING *;`,
-      params
-    );
+    const sql = Q_Formatter(`DELETE FROM mails WHERE id = ? RETURNING *;`, [
+      id,
+    ]);
     const res = await query(sql, []);
     return res.rows[0];
   } catch (err) {
@@ -130,9 +126,9 @@ const q_delete_mail = async (params) => {
 };
 
 //--------------gallery------------//
-const q_get_gallery = async () => {
+const q_get_gallery = async (type) => {
   try {
-    const sql = Q_Formatter(`SELECT * FROM gallery;`);
+    const sql = Q_Formatter(`SELECT * FROM gallery where type = ?;`, [type]);
     const res = await query(sql, []);
     return res.rows;
   } catch (err) {
@@ -144,6 +140,7 @@ const q_get_gallery_id = async (params) => {
   try {
     const sql = Q_Formatter(`SELECT * FROM gallery WHERE id = ?;`, params);
     const res = await query(sql, []);
+    console.log(res.rows);
     return res.rows[0];
   } catch (err) {
     return "false";
@@ -178,13 +175,45 @@ const q_add_gallery = async (type, gallery) => {
   }
 };
 
-const q_save_gallery = async () => {
+const q_save_gallery = async (params, gallery) => {
   try {
-    const sql = Q_Formatter(
-      `UPDATE gallery SET name = ?, short_name = ?, created_at = clock_timestamp() WHERE id = ? RETURNING *;`,
-      params
-    );
-    const res = await query(sql, []);
+    const rgx = /video/;
+    if (gallery.mimetype.search(rgx) != -1) {
+      try {
+        console.log("video");
+        console.log(gallery);
+        const id = params.id;
+        const gallery_path = params.gallery_path;
+        console.log(params.gallery_path);
+        const del_gallery_path =
+          "/" + gallery_path.substring(0, gallery_path.length - 4);
+        console.log(del_gallery_path);
+        await imageUP.DeleteVideo(del_gallery_path);
+        const new_gallery_path = await videUploadMV(gallery, "gallery");
+        console.log("gallery_path => ", gallery_path);
+        const sql = Q_Formatter(
+          `UPDATE gallery SET gallery_path = ?, type = ? WHERE id = ? RETURNING *;`,
+          [new_gallery_path, "video", id]
+        );
+        var res = await query(sql, []);
+      } catch (err) {
+        console.log(err);
+        return "false";
+      }
+    } else {
+      console.log("image", gallery);
+      const id = params.id;
+      console.log(params.gallery_path);
+      const gallery_path_del = "/" + params.gallery_path;
+      await imageUP.DeleteImage(gallery_path_del);
+      const gallery_path = await imageUP.OneImageUploadMV(gallery, "gallery");
+      console.log("gallery_path => ", gallery_path);
+      const sql = Q_Formatter(
+        `UPDATE gallery SET gallery_path = ?, type = ? WHERE id = ? RETURNING *;`,
+        [gallery_path, "image", id]
+      );
+      var res = await query(sql, []);
+    }
     return res;
   } catch (err) {
     return "false";
@@ -227,7 +256,7 @@ const q_get_language_id = async (params) => {
 
 const q_add_language = async (params, image) => {
   try {
-    const image_path = await imageUpload.oneImageUpload(image, "language");
+    const image_path = await imageUP.OneImageUploadMV(image, "language");
     params.push(image_path);
     const sql = Q_Formatter(
       `INSERT INTO languages(name, short_name, image_path) VALUES(?, ?, ?) RETURNING *;`,
@@ -252,7 +281,7 @@ const q_save_language = async (params, image) => {
       await imageUpload.Deletefile(
         path.normalize(__dirname + "./../../" + res.rows[0].image_path)
       );
-      const image_path = await imageUpload.oneImageUpload(image, "language");
+      const image_path = await imageUP.OneImageUploadMV(image, "language");
       const sql = Q_Formatter(
         `UPDATE languages SET image_path = ?, created_at = clock_timestamp() WHERE id = ?;`,
         [image_path, params[2]]
@@ -284,12 +313,28 @@ const q_delete_language = async (params) => {
 };
 
 //--------------footer------------//
-const q_get_footer = async () => {
+const q_get_footer = async (lang) => {
   try {
-    const sql = Q_Formatter(`SELECT * FROM footer;`);
+    const sql = Q_Formatter(
+      `WITH
+    ft as (
+      select
+        footer.id, 
+        footer.lang_id, 
+        json_build_object('text', footer.text,
+                          'right', footer.right ) as text
+      from  footer
+    )
+    
+    SELECT 
+      json_agg(ft.*) translations
+    FROM ft ;`
+    );
     const res = await query(sql, []);
+    console.log(res);
     return res.rows;
   } catch (err) {
+    console.log(err);
     return "false";
   }
 };
@@ -387,18 +432,32 @@ const q_get_home = async (section) => {
         break;
       }
       case "statistic": {
-        const sql = Q_Formatter(`
+        try {
+          const sql = Q_Formatter(`
+        WITH sub_stt as (
+          select 
+            stt.id,
+            stt.lang_id,
+            stt.statistics_id,
+            json_build_object('title', stt.title ) as title
+          from statistics_translations stt
+        )
         SELECT 
-        * 
-        FROM statistics_translations as stt 
-        INNER JOIN statistics as st ON  
-        stt.statistics_id = st.id`);
-        var res = await query(sql, []);
+        st.id,
+        st.number,
+        (select json_agg(stt.*) from sub_stt as stt where stt.statistics_id = st.id ) as translations
+        FROM statistics as st`);
+          var res = await query(sql, []);
+        } catch (err) {
+          console.log(err);
+          return "false";
+        }
+
         break;
       }
+      default:
+        return "api not found";
     }
-
-    return res.rows;
   } catch (err) {
     console.log(err);
     return "false";
@@ -457,7 +516,6 @@ const q_save_home = async (params, image, section) => {
     switch (section) {
       case "topics": {
         try {
-          console.log();
           const image_path = params.image_path;
           const topic_id = params.id;
           const translations = params.translations;
@@ -496,6 +554,137 @@ const q_save_home = async (params, image, section) => {
           return "false";
         }
       }
+      case "faciliti": {
+        try {
+          const translations = params.translations;
+          console.log(translations);
+          for (i = 0; i < translations.length; i++) {
+            const sql = Q_Formatter(
+              `UPDATE home_translation SET faciliti_title_s = ? , faciliti_title_b = ?,
+            faciliti_text = ? WHERE id = ? returning *;`,
+              [
+                translations[i].title.small_title,
+                translations[i].title.big_title,
+                translations[i].text.text,
+                translations[i].id,
+              ]
+            );
+            var res = await query(sql, []);
+          }
+          console.log("res: ", res.rows);
+          return res.rows;
+        } catch (err) {
+          console.log(err);
+          return "false";
+        }
+      }
+      case "faciliti-image": {
+        try {
+          console.log(params);
+          const image_path = params.image_path;
+          console.log("imag", image_path);
+          const id = params.id;
+          console.log(image_path);
+          const new_i = "/" + image_path;
+          console.log(new_i);
+          await imageUP.DeleteImage(new_i);
+          const new_image_path = await imageUP.OneImageUploadMV(
+            image,
+            "faciliti-images"
+          );
+          console.log(new_image_path);
+          const sql = Q_Formatter(
+            `UPDATE faciliti_images set image_path = ? where id = ? returning *;`,
+            [new_image_path, id]
+          );
+          const res = await query(sql, []);
+          console.log(res.rows);
+          return res.rows;
+        } catch (err) {
+          console.log(err);
+          return "false";
+        }
+      }
+      case "sliders": {
+        try {
+          console.log(params);
+          const image_path = params.image_path;
+          console.log("imag", image_path);
+          const id = params.id;
+          console.log(image_path);
+          const new_i = "/" + image_path;
+          console.log(new_i);
+          await imageUP.DeleteImage(new_i);
+          const new_image_path = await imageUP.OneImageUploadMV(
+            image,
+            "sliders"
+          );
+          console.log(new_image_path);
+          const sql = Q_Formatter(
+            `UPDATE sliders set image_path = ? where id = ? returning *;`,
+            [new_image_path, id]
+          );
+          const res = await query(sql, []);
+          console.log(res.rows);
+          return res.rows;
+        } catch (err) {
+          console.log(err);
+          return "false";
+        }
+      }
+      case "map": {
+        try {
+          const translations = params.translations;
+          console.log(translations);
+          for (i = 0; i < translations.length; i++) {
+            const sql = Q_Formatter(
+              `UPDATE home_translation SET agencie_title = ? , agencie_content = ?
+               WHERE id = ? returning *;`,
+              [
+                translations[i].title.title,
+                translations[i].text.text,
+                translations[i].id,
+              ]
+            );
+            var res = await query(sql, []);
+          }
+          console.log("res: ", res.rows);
+          return res.rows;
+        } catch (err) {
+          console.log(err);
+          return "false";
+        }
+      }
+      case "statistic": {
+        try {
+          const translations = params.translations;
+          const id = params.id;
+          const number = params.number;
+          const sql_s = Q_Formatter(
+            `update statistics set number = ? where id = ? returning *;`,
+            [number, id]
+          );
+          const res_s = await query(sql_s, []);
+          console.log(res_s.rows);
+          for (i = 0; i < translations.length; i++) {
+            const sql = Q_Formatter(
+              `UPDATE statistics_translations SET statistics_id = ? , title = ?
+               WHERE id = ? returning *;`,
+              [
+                res_s.rows[0].id,
+                translations[i].title.title,
+                translations[i].id,
+              ]
+            );
+            var res = await query(sql, []);
+          }
+          console.log("res: ", res.rows);
+          return res.rows;
+        } catch (err) {
+          console.log(err);
+          return "false";
+        }
+      }
     }
     return res.rows[0];
   } catch (err) {
@@ -516,8 +705,8 @@ const q_get_contact = async () => {
                           'company_name',cont.company_name,
                           'mail',cont.mail,
                           'subject',cont.subject,
-                          'message,',cont.message,
-                          'button_text,',cont.button_text
+                          'message',cont.message,
+                          'button_text',cont.button_text
                           ) as title
       FROM contact_translation as cont
     )
@@ -525,6 +714,7 @@ const q_get_contact = async () => {
         json_agg(ct.*) as translations
     FROM ct;`);
     const res = await query(sql, []);
+    console.log(res);
     return res.rows;
   } catch (err) {
     return "false";
@@ -581,8 +771,10 @@ const q_add_contact = async (translations) => {
   }
 };
 
-const q_save_contact = async (translations) => {
+const q_save_contact = async (params) => {
   try {
+    const translations = params.translations;
+    console.log(translations);
     for (i = 0; i < translations.length; i++) {
       const id = translations[i].id;
       const title = translations[i].title.title;
@@ -596,7 +788,7 @@ const q_save_contact = async (translations) => {
       const sql_ct = Q_Formatter(
         `update contact_translation set title = ?, title_address = ?, 
         name = ?, company_name = ?, mail = ?, subject = ?, message = ?, 
-        button_text = ? created_at = clock_timestamp() WHERE id = ? returning *;`,
+        button_text = ? WHERE id = ? returning *;`,
         [
           title,
           title_address,
@@ -611,8 +803,10 @@ const q_save_contact = async (translations) => {
       );
       var res_ct = await query(sql_ct, []);
     }
-    return res;
+    console.log(res_ct.rows);
+    return res_ct;
   } catch (err) {
+    console.log(err);
     return "false";
   }
 };
@@ -694,32 +888,33 @@ const q_add_about = async (params, image) => {
   }
 };
 
-const q_save_about = async (translations, image, id) => {
+const q_save_about = async (params, image) => {
   try {
+    const translations = params.translations;
+    const id = params.id;
+    const image_path = params.image_path;
     if (image) {
-      const sql_2 = `select image_path from about where id = '${translations.id}';`;
-      const res_2 = await query(sql_2, []);
-      await imageUpload.Deletefile(
-        path.normalize(__dirname + "./../../" + res_2.rows[0].image_path)
-      );
-      const image_path = await imageUpload.oneImageUpload(image, "about");
+      const index = image_path.indexOf("-");
+      const delete_image_path = "/" + image_path.substring(0, index);
+      console.log(delete_image_path);
+      await imageUP.DeleteImage(delete_image_path);
+      const new_image_path = await imageUP.OneImageUploadMV(image, "about");
       const sql = Q_Formatter(
-        `UPDATE about SET image_path = ?, created_at = clock_timestamp() WHERE id = ? returning *;`,
-        [image_path, translations.id]
+        `UPDATE about SET image_path = ? WHERE id = ? returning *;`,
+        [new_image_path, id]
       );
       var res_a = await query(sql, []);
     }
-    const about_id = image ? res_a.rows[0].id : translations.id;
-    for (i = 0; i < translations.translations.length; i++) {
+    for (i = 0; i < translations.length; i++) {
       const sql_2 = Q_Formatter(
         `UPDATE about_translation SET about_id = ?, small_title = ?, 
-      big_title = ?, content  = ?, created_at = clock_timestamp() WHERE id = ?;`,
+      big_title = ?, content  = ? WHERE id = ?;`,
         [
-          about_id,
-          translations.translations[i].title.small_title,
-          translations.translations[i].title.big_title,
-          translations.translations[i].text.content,
-          translations.translations[i].id,
+          id,
+          translations[i].title.small_title,
+          translations[i].title.big_title,
+          translations[i].text.content,
+          translations[i].id,
         ]
       );
       var { rows } = await query(sql_2, []);
@@ -748,7 +943,6 @@ const q_get_product = async () => {
         (SELECT json_agg(pt.*) as translations FROM pt WHERE pt.product_id = products.id) 
         FROM products;`);
     const res = await query(sql, []);
-    //bazadan getirenden
     return res.rows;
   } catch (err) {
     console.log(err);
@@ -773,10 +967,9 @@ const q_add_product = async (params, image) => {
   try {
     const translations = params.translations;
     const image_path = await imageUP.OneImageUploadMV(image, "products");
-    const new_image_path = image_path + "-700.jpg";
     const sql = Q_Formatter(
       `INSERT INTO products(image_path) VALUES(?) RETURNING *;`,
-      [new_image_path]
+      [image_path]
     );
     const res = await query(sql, []);
     const product_id = res.rows[0].id;
@@ -802,18 +995,20 @@ const q_add_product = async (params, image) => {
 const q_save_product = async (params, image) => {
   try {
     const translations = params.translations;
+    console.log(translations);
     const p_id = params.id;
     var image_path = params.image_path;
     if (image) {
-      const index = image_path.indexOf("-");
-      const new_i = "/" + image_path.substring(0, index);
-      await imageUP.DeleteImage(new_i);
+      const del_image_path = "/" + image_path;
+      console.log("del", del_image_path);
+      await imageUP.DeleteImage(del_image_path);
       const new_image_path = await imageUP.OneImageUploadMV(image, "products");
       const sql_p = Q_Formatter(
         `UPDATE products set image_path = ? where id = ? returning *;`,
         [new_image_path, p_id]
       );
       const res_p = await query(sql_p, []);
+      console.log("aaaa", res_p.rows);
       var product_id = res_p.rows[0].id;
     }
 
@@ -900,11 +1095,42 @@ const q_add_header = async (translations, menu, image) => {
   }
 };
 
-const q_save_header = async () => {
+const q_save_header = async (params, menu, image) => {
   try {
-    const sql = Q_Formatter(`RETURNING *;`, params);
-    const res = await query(sql, []);
-    return res;
+    try {
+      const image_path = params.image_path;
+      const header_id = params.id;
+      const translations = params.translations;
+      if (image) {
+        console.log(image_path);
+        const del_image_path = "/" + image_path;
+        console.log("del:", del_image_path);
+        await imageUP.DeleteImage(del_image_path);
+        const new_image_path = await imageUP.OneImageUploadMV(image, "header");
+        console.log(new_image_path);
+        const sql_hi = Q_Formatter(
+          `UPDATE header_image set image_path = ? where id = ? returning *;`,
+          [new_image_path, header_id]
+        );
+        await query(sql_hi, []);
+      }
+      for (i = 0; i < translations.length; i++) {
+        const small_text = translations[0].text.small_text;
+        const text = translations[0].text.text;
+        const id = translations[0].id;
+
+        const sql_htt = Q_Formatter(
+          `UPDATE header_text_translation SET header_image_id = ?, small_text = ?, text = ? 
+            WHERE id = ? returning *;`,
+          [header_id, small_text, text, id]
+        );
+        var res_htt = await query(sql_htt, []);
+      }
+      return res_htt.rows[0];
+    } catch (err) {
+      console.log(err);
+      return "false";
+    }
   } catch (err) {
     return "false";
   }
@@ -923,7 +1149,18 @@ const q_delete_header = async () => {
 //--------------address------------//
 const q_get_address = async () => {
   try {
-    const sql = Q_Formatter(`SELECT * FROM address;`);
+    const sql = Q_Formatter(`WITH
+    ft as (
+      select
+        address.id, 
+        address.lang_id, 
+        json_build_object('address', address.address) as text
+      from  address
+    )
+    
+    SELECT 
+      json_agg(ft.*) translations
+    FROM ft ;`);
     const res = await query(sql, []);
     return res.rows;
   } catch (err) {
@@ -1070,7 +1307,7 @@ const q_get_topic_id = async () => {
 
 const q_add_topic = async (params, image) => {
   try {
-    const image_path = await imageUpload.oneImageUpload(image, "topics");
+    const image_path = await imageUP.OneImageUploadMV(image, "topics");
     params.push(image_path);
     const sql = Q_Formatter(
       `INSERT INTO topics_translations(lang_id, title, content, image_path) VALUES(?, ?, ?, ?) RETURNING *;`,
@@ -1096,7 +1333,7 @@ const q_save_topic = async (params, image) => {
       await imageUpload.Deletefile(
         path.normalize(__dirname + "./../../" + res.rows[0].image_path)
       );
-      const image_path = await imageUpload.oneImageUpload(image, "topics");
+      const image_path = await imageUP.OneImageUploadMV(image, "topics");
       const sql = Q_Formatter(
         `UPDATE topics_translations SET image_path = ?, created_at = clock_timestamp() WHERE id = ?;`,
         [image_path, res.rows[0].id]
@@ -1148,7 +1385,7 @@ const q_get_slider_id = async () => {
 
 const q_add_slider = async (params, image) => {
   try {
-    const image_path = await imageUpload.oneImageUpload(image, "sliders");
+    const image_path = await imageUP.OneImageUploadMV(image, "sliders");
     const sql = Q_Formatter(
       `INSERT INTO sliders(image_path) VALUES(?) RETURNING *;`,
       [image_path]
@@ -1171,7 +1408,7 @@ const q_save_slider = async (id, image) => {
       await imageUpload.Deletefile(
         path.normalize(__dirname + "./../../" + res.rows[0].image_path)
       );
-      const image_path = await imageUpload.oneImageUpload(
+      const image_path = await imageUP.OneImageUploadMV(
         image,
         "faciliti_images"
       );
@@ -1228,10 +1465,7 @@ const q_get_faciliti_image_id = async () => {
 
 const q_add_faciliti_image = async (image) => {
   try {
-    const image_path = await imageUpload.oneImageUpload(
-      image,
-      "faciliti_images"
-    );
+    const image_path = await imageUP.OneImageUploadMV(image, "faciliti_images");
     const sql = Q_Formatter(
       `INSERT INTO faciliti_images(image_path) VALUES(?) RETURNING *;`,
       [image_path]
@@ -1254,7 +1488,7 @@ const q_save_faciliti_image = async (id, image) => {
       await imageUpload.Deletefile(
         path.normalize(__dirname + "./../../" + res.rows[0].image_path)
       );
-      const image_path = await imageUpload.oneImageUpload(
+      const image_path = await imageUP.OneImageUploadMV(
         image,
         "faciliti_images"
       );
