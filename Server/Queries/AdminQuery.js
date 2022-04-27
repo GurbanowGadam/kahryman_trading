@@ -2,7 +2,6 @@ const { query } = require("./../Database/index");
 const { Q_Formatter } = require("./../Functions/QFormatter");
 const { videUploadMV } = require("./../Functions/video");
 const imageUP = require("./../Functions/image");
-const path = require("path");
 
 //--------------phone------------//
 const q_get_phone = async () => {
@@ -10,19 +9,6 @@ const q_get_phone = async () => {
     const sql = Q_Formatter(`SELECT * FROM phone_numbers;`);
     const res = await query(sql, []);
     return res.rows;
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_get_phone_id = async (params) => {
-  try {
-    const sql = Q_Formatter(
-      `SELECT * FROM phone_numbers WHERE id = ?;`,
-      params
-    );
-    const res = await query(sql, []);
-    return res.rows[0];
   } catch (err) {
     return "false";
   }
@@ -78,16 +64,6 @@ const q_get_mail = async () => {
   }
 };
 
-const q_get_mail_id = async (params) => {
-  try {
-    const sql = Q_Formatter(`SELECT * FROM mails WHERE id = ?;`, params);
-    const res = await query(sql, []);
-    return res.rows[0];
-  } catch (err) {
-    return "false";
-  }
-};
-
 const q_add_mail = async (mail) => {
   try {
     const sql = Q_Formatter(`INSERT INTO mails(mail) VALUES(?) RETURNING *;`, [
@@ -128,26 +104,26 @@ const q_delete_mail = async (id) => {
 //--------------gallery------------//
 const q_get_gallery = async (type) => {
   try {
-    const sql = Q_Formatter(`SELECT * FROM gallery where type = ?;`, [type]);
-    const res = await query(sql, []);
+    if (type == "video") {
+      const sql = Q_Formatter(
+        `SELECT id, gallery_path as video_path, type FROM gallery where type = ?;`,
+        [type]
+      );
+      var res = await query(sql, []);
+    } else {
+      const sql = Q_Formatter(
+        `SELECT id, gallery_path as image_path, type FROM gallery where type = ?;`,
+        [type]
+      );
+      var res = await query(sql, []);
+    }
     return res.rows;
   } catch (err) {
     return "false";
   }
 };
 
-const q_get_gallery_id = async (params) => {
-  try {
-    const sql = Q_Formatter(`SELECT * FROM gallery WHERE id = ?;`, params);
-    const res = await query(sql, []);
-    console.log(res.rows);
-    return res.rows[0];
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_add_gallery = async (type, gallery) => {
+const q_add_gallery = async (gallery) => {
   try {
     const rgx = /video/;
     if (gallery.mimetype.search(rgx) != -1) {
@@ -157,7 +133,7 @@ const q_add_gallery = async (type, gallery) => {
       console.log("gallery_path => ", gallery_path);
       const sql = Q_Formatter(
         `INSERT INTO gallery(gallery_path, type) VALUES(?, ?) RETURNING *;`,
-        [gallery_path, type]
+        [gallery_path, "video"]
       );
       var res = await query(sql, []);
     } else {
@@ -165,12 +141,15 @@ const q_add_gallery = async (type, gallery) => {
       const gallery_path = await imageUP.OneImageUploadMV(gallery, "gallery");
       const sql = Q_Formatter(
         `INSERT INTO gallery(gallery_path, type) VALUES(?, ?) RETURNING *;`,
-        [gallery_path, type]
+        [gallery_path, "image"]
       );
+      console.log(sql);
       var res = await query(sql, []);
+      console.log(res.rows);
     }
     return res;
   } catch (err) {
+    console.log(err);
     return "false";
   }
 };
@@ -183,8 +162,8 @@ const q_save_gallery = async (params, gallery) => {
         console.log("video");
         console.log(gallery);
         const id = params.id;
-        const gallery_path = params.gallery_path;
-        console.log(params.gallery_path);
+        const gallery_path = params.video_path;
+        console.log(params.video_path);
         const del_gallery_path =
           "/" + gallery_path.substring(0, gallery_path.length - 4);
         console.log(del_gallery_path);
@@ -203,8 +182,9 @@ const q_save_gallery = async (params, gallery) => {
     } else {
       console.log("image", gallery);
       const id = params.id;
-      console.log(params.gallery_path);
-      const gallery_path_del = "/" + params.gallery_path;
+      console.log(params.image_path);
+      const gallery_path_del = "/" + params.image_path;
+      console.log("del", gallery_path_del);
       await imageUP.DeleteImage(gallery_path_del);
       const gallery_path = await imageUP.OneImageUploadMV(gallery, "gallery");
       console.log("gallery_path => ", gallery_path);
@@ -220,15 +200,30 @@ const q_save_gallery = async (params, gallery) => {
   }
 };
 
-const q_delete_gallery = async (params) => {
+const q_delete_gallery = async (gallery_path, id, type) => {
   try {
-    const sql = Q_Formatter(
-      `DELETE FROM gallery WHERE id = ? RETURNING *;`,
-      params
-    );
-    const res = await query(sql, []);
-    return res.rows[0];
+    if (type == "video") {
+      console.log("video");
+      const gallery_path_del =
+        "/" + gallery_path.substring(0, gallery_path.length - 4);
+      await imageUP.DeleteVideo(gallery_path_del);
+      const sql = Q_Formatter(`DELETE FROM gallery WHERE id = ? RETURNING *;`, [
+        id,
+      ]);
+      var res = await query(sql, []);
+    } else {
+      console.log(gallery_path);
+      const gallery_path_del = "/" + gallery_path;
+      await imageUP.DeleteImage(gallery_path_del);
+      console.log("gallery_path => ", gallery_path_del);
+      const sql = Q_Formatter(`DELETE FROM gallery WHERE id = ? RETURNING *;`, [
+        id,
+      ]);
+      var res = await query(sql, []);
+    }
+    return res;
   } catch (err) {
+    console.log(err);
     return "false";
   }
 };
@@ -244,22 +239,10 @@ const q_get_language = async () => {
   }
 };
 
-const q_get_language_id = async (params) => {
+const q_add_language = async (params) => {
   try {
-    const sql = Q_Formatter(`SELECT * FROM languages WHERE id = ?;`, params);
-    const res = await query(sql, []);
-    return res.rows[0];
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_add_language = async (params, image) => {
-  try {
-    const image_path = await imageUP.OneImageUploadMV(image, "language");
-    params.push(image_path);
     const sql = Q_Formatter(
-      `INSERT INTO languages(name, short_name, image_path) VALUES(?, ?, ?) RETURNING *;`,
+      `INSERT INTO languages(name, short_name) VALUES(?, ?) RETURNING *;`,
       params
     );
     const res = await query(sql, []);
@@ -276,18 +259,6 @@ const q_save_language = async (params, image) => {
       params
     );
     const res = await query(sql, []);
-
-    if (image) {
-      await imageUpload.Deletefile(
-        path.normalize(__dirname + "./../../" + res.rows[0].image_path)
-      );
-      const image_path = await imageUP.OneImageUploadMV(image, "language");
-      const sql = Q_Formatter(
-        `UPDATE languages SET image_path = ?, created_at = clock_timestamp() WHERE id = ?;`,
-        [image_path, params[2]]
-      );
-      await query(sql, []);
-    }
     return res.rows[0];
   } catch (err) {
     console.log(err);
@@ -302,9 +273,6 @@ const q_delete_language = async (params) => {
       params
     );
     const res = await query(sql, []);
-    await imageUpload.Deletefile(
-      path.normalize(__dirname + "./../../" + res.rows[0].image_path)
-    );
     return res.rows[0];
   } catch (err) {
     console.log(err);
@@ -313,57 +281,350 @@ const q_delete_language = async (params) => {
 };
 
 //--------------footer------------//
-const q_get_footer = async (lang) => {
+const q_get_footer = async (section) => {
   try {
-    const sql = Q_Formatter(
-      `WITH
-    ft as (
-      select
-        footer.id, 
-        footer.lang_id, 
-        json_build_object('text', footer.text,
-                          'right', footer.right ) as text
-      from  footer
-    )
-    
-    SELECT 
-      json_agg(ft.*) translations
-    FROM ft ;`
-    );
-    const res = await query(sql, []);
-    console.log(res);
-    return res.rows;
+    switch (section) {
+      case "text": {
+        const sql = Q_Formatter(`WITH
+        ftr as (
+          select
+            f.id, 
+            f.lang_id, 
+            json_build_object('bottum_title', f.bottum_title) as title,
+            json_build_object('text', f.text) as text
+          from footer as f
+        )
+        
+        SELECT 
+          json_agg(ftr.*) as translations
+        FROM ftr;`);
+        var res = await query(sql, []);
+
+        return res.rows;
+      }
+      case "address": {
+        const sql = Q_Formatter(`
+        WITH 
+        at as (
+          SELECT 
+          adt.id, adt.lang_id, adt.address_id,
+          json_build_object('address',adt.address ) as title
+          FROM address_translations as adt
+        )
+        SELECT address.id,
+            (SELECT json_agg(at.*) as translations FROM at WHERE at.address_id = address.id) 
+            FROM address;`);
+        var res = await query(sql, []);
+        return res.rows;
+      }
+      case "mail": {
+        const sql = `select * from mails;`;
+        var res = await query(sql, []);
+        return res.rows;
+      }
+      case "phone": {
+        const sql = Q_Formatter(`select * from phone_numbers;`);
+        var res = await query(sql, []);
+        return res.rows;
+      }
+      default:
+        return "api not found";
+    }
   } catch (err) {
     console.log(err);
     return "false";
   }
 };
 
-const q_get_footer_id = async (params) => {
+const q_add_footer = async (params, section) => {
   try {
-    const sql = Q_Formatter(`SELECT * FROM footer WHERE id = ?;`, params);
-    const res = await query(sql, []);
-    return res.rows[0];
+    const translations = params.translations;
+    console.log("tr", translations);
+    switch (section) {
+      case "address": {
+        try {
+          const sql = Q_Formatter(
+            `INSERT INTO address(address) VALUES(?) RETURNING *;`,
+            [translations[0].title.address]
+          );
+          const res_a = await query(sql, []);
+          for (i = 0; i < translations.length; i++) {
+            const sql = Q_Formatter(
+              `INSERT INTO address_translations(lang_id, address_id, address) VALUES(?, ?, ?) RETURNING *;`,
+              [
+                translations[i].lang_id,
+                res_a.rows[0].id,
+                translations[i].title.address,
+              ]
+            );
+            console.log(sql);
+            var res = await query(sql, []);
+            console.log(res.rows);
+          }
+          return res.rows;
+        } catch (err) {
+          console.log(err);
+          return "false";
+        }
+      }
+      case "mail": {
+        try {
+          for (i = 0; i < translations.length; i++) {
+            const sql = Q_Formatter(
+              `INSERT INTO mails(mail) VALUES(?) RETURNING *;`,
+              [translations[i].title.mail]
+            );
+            var res = await query(sql, []);
+          }
+          return res.rows;
+        } catch (err) {
+          console.log(err);
+          return "false";
+        }
+      }
+      case "phone": {
+        try {
+          for (i = 0; i < translations.length; i++) {
+            const sql = Q_Formatter(
+              `INSERT INTO phone_numbers(number) VALUES(?) RETURNING *;`,
+              [translations[i].title.phone]
+            );
+            var res = await query(sql, []);
+          }
+          return res.rows;
+        } catch (err) {
+          console.log(err);
+          return "false";
+        }
+      }
+      default:
+        return "api not found";
+    }
   } catch (err) {
     return "false";
   }
 };
 
-const q_save_footer = async (params) => {
+const q_save_footer = async (params, arr, section) => {
   try {
-    const sql = Q_Formatter(
-      `UPDATE footer SET text = ?, right = ? created_at = clock_timestamp() WHERE id = ? RETURNING *;`,
-      params
-    );
-    const res = await query(sql, []);
-    return res;
+    switch (section) {
+      case "text": {
+        try {
+          const translations = params.translations;
+          for (i = 0; i < translations.length; i++) {
+            const sql = Q_Formatter(
+              `update footer set text = ?, bottum_title = ? where id = ? returning *;`,
+              [
+                translations[i].text.text,
+                translations[i].title.bottum_title,
+                translations[i].id,
+              ]
+            );
+            var res = await query(sql, []);
+          }
+          return res.rows;
+        } catch (error) {
+          console.log(error);
+          return "false";
+        }
+      }
+      case "address": {
+        try {
+          const translations = params.translations;
+          for (i = 0; i < translations.length; i++) {
+            const sql = Q_Formatter(
+              `update address_translations set address = ? where id = ? returning *;`,
+              [translations[i].title.address, translations[i].id]
+            );
+            var res = await query(sql, []);
+          }
+          return res.rows;
+        } catch (error) {
+          console.log(error);
+          return "false";
+        }
+      }
+      case "mail": {
+        try {
+          const sql = Q_Formatter(
+            `update mails set mail = ? where id = ? returning *;`,
+            [arr[1], arr[2]]
+          );
+          var res = await query(sql, []);
+          return res.rows;
+        } catch (error) {
+          console.log(error);
+          return "false";
+        }
+        break;
+      }
+      case "phone": {
+        try {
+          const sql = Q_Formatter(
+            `update phone_numbers set number = ? where id = ? returning *;`,
+            [arr[0], arr[2]]
+          );
+          var res = await query(sql, []);
+          return res.rows;
+        } catch (error) {
+          console.log(error);
+          return "false";
+        }
+        break;
+      }
+      default:
+        return "api not found";
+    }
   } catch (err) {
     return "false";
   }
 };
 
+const q_delete_footer = async (id, section) => {
+  try {
+    if (section == "phone") {
+      table = "phone_numbers";
+    } else if (section == "mail") {
+      table = "mails";
+    } else {
+      table = "address";
+    }
+    const str = `delete from ` + table + ` where id = ? returning *;`;
+    console.log(str);
+    const sql = Q_Formatter(str, [id]);
+    console.log(sql);
+    const res = await query(sql, []);
+    return res.rows;
+  } catch (err) {
+    return "false";
+  }
+};
 //--------------home------------//
 const q_get_home = async (section) => {
+  try {
+    switch (section) {
+      case "topics": {
+        try {
+          const sql = Q_Formatter(`WITH
+        topic_t as (
+          select
+            tt.id, 
+            tt.topic_id, 
+            tt.lang_id, 
+            json_build_object('title', tt.title) as title,
+            json_build_object('content', tt.content) as text
+          from topics_translations as tt
+        )
+        
+        SELECT 
+        t.image_path, t.id,
+        (select json_agg(topic_t.*) from topic_t where topic_t.topic_id = t.id ) as translations
+        FROM topics as t;
+          `);
+          var res = await query(sql, []);
+
+          const sql_2 = `WITH
+        sub_q as (
+          select
+            ht.id, 
+            ht.lang_id, 
+            json_build_object('topic_title', ht.topic_title) as title
+          from home_translation as ht
+        )
+        
+        SELECT 
+        (select json_agg(sub_q.*) from sub_q) as translations
+          FROM sub_q as t;`;
+          const res_2 = await query(sql_2, []);
+          res.rows.reverse().push(res_2.rows[0]);
+          res.rows.reverse();
+          return res.rows;
+        } catch (err) {
+          console.log(err);
+          return "false";
+        }
+        break;
+      }
+      case "faciliti": {
+        const sql = Q_Formatter(`WITH
+        home_t as (
+          select
+            ht.id, 
+            ht.lang_id, 
+            json_build_object('small_title', ht.faciliti_title_s,
+                              'big_title', ht.faciliti_title_b ) as title,
+            json_build_object('text', ht.faciliti_text ) as text
+          from home_translation as ht
+        )
+        
+        SELECT 
+          json_agg(home_t.*) as translations
+        FROM home_t;`);
+        var res = await query(sql, []);
+        console.log("res>", res.rows);
+        return res.rows;
+        break;
+      }
+      case "faciliti-image": {
+        const sql = Q_Formatter(`select * from faciliti_images;`);
+        var res = await query(sql, []);
+        return res.rows;
+      }
+      case "sliders": {
+        const sql = Q_Formatter(`select * from sliders;`);
+        var res = await query(sql, []);
+        return res.rows;
+      }
+      case "map": {
+        const sql = Q_Formatter(`WITH
+        home_t as (
+          select
+            ht.id, 
+            ht.lang_id, 
+            json_build_object('title', ht.agencie_title ) as title,
+            json_build_object('text', ht.agencie_content ) as text
+          from home_translation as ht
+        )
+        
+        SELECT 
+          json_agg(home_t.*) as translations
+        FROM home_t;`);
+        var res = await query(sql, []);
+        return res.rows;
+      }
+      case "statistic": {
+        try {
+          const sql = Q_Formatter(`
+        WITH sub_stt as (
+          select 
+            stt.id,
+            stt.lang_id,
+            stt.statistics_id,
+            json_build_object('title', stt.title,
+            'number', (select number from statistics as s where s.id = stt.statistics_id) ) as title
+          from statistics_translations stt
+        )
+        SELECT 
+        st.id,
+        (select json_agg(stt.*) from sub_stt as stt where stt.statistics_id = st.id ) as translations
+        FROM statistics as st`);
+          var res = await query(sql, []);
+        } catch (err) {
+          console.log(err);
+          return "false";
+        }
+        return res.rows;
+      }
+      default:
+        return "api not found";
+    }
+  } catch (err) {
+    console.log(err);
+    return "false";
+  }
+};
+
+const q_add_home = async (translations, image, section) => {
   try {
     switch (section) {
       case "topics": {
@@ -384,7 +645,24 @@ const q_get_home = async (section) => {
         FROM topics as t;
         `);
         var res = await query(sql, []);
-        break;
+
+        const sql_2 = `WITH
+        sub_q as (
+          select
+            ht.id, 
+            ht.lang_id, 
+            json_build_object('topic_title', ht.topic_title) as title
+          from home_translation as ht
+        )
+        
+        SELECT 
+        (select json_agg(sub_q.*) from sub_q) as translations
+        FROM sub_q as t;`;
+        const res_2 = await query(sql_2, []);
+        console.log(res_2.rows[0]);
+        res.rows.reverse().push(res_2.rows[0]);
+        res.rows.reverse();
+        return res.rows;
       }
       case "faciliti": {
         const sql = Q_Formatter(`WITH
@@ -402,17 +680,42 @@ const q_get_home = async (section) => {
           json_agg(home_t.*) as translations
         FROM home_t;`);
         var res = await query(sql, []);
-        break;
+        return res.rows;
       }
       case "faciliti-image": {
-        const sql = Q_Formatter(`select * from faciliti_images;`);
-        var res = await query(sql, []);
-        break;
+        try {
+          const image_path = await imageUP.OneImageUploadMV(
+            image,
+            "faciliti-images"
+          );
+          console.log(image_path);
+          const sql = Q_Formatter(
+            `INSERT INTO faciliti_images(image_path) VALUES(?) returning *;`,
+            [image_path]
+          );
+          const res = await query(sql, []);
+          console.log(res.rows);
+          return res.rows;
+        } catch (err) {
+          console.log(err);
+          return "false";
+        }
       }
       case "sliders": {
-        const sql = Q_Formatter(`select * from sliders;`);
-        var res = await query(sql, []);
-        break;
+        try {
+          const image_path = await imageUP.OneImageUploadMV(image, "sliders");
+          console.log(image_path);
+          const sql = Q_Formatter(
+            `INSERT INTO sliders(image_path) VALUES(?) returning *;`,
+            [image_path]
+          );
+          const res = await query(sql, []);
+          console.log(res.rows);
+          return res.rows;
+        } catch (err) {
+          console.log(err);
+          return "false";
+        }
       }
       case "map": {
         const sql = Q_Formatter(`WITH
@@ -429,7 +732,7 @@ const q_get_home = async (section) => {
           json_agg(home_t.*) as translations
         FROM home_t;`);
         var res = await query(sql, []);
-        break;
+        return res.rows;
       }
       case "statistic": {
         try {
@@ -452,58 +755,11 @@ const q_get_home = async (section) => {
           console.log(err);
           return "false";
         }
-
-        break;
+        return res.rows;
       }
       default:
         return "api not found";
     }
-  } catch (err) {
-    console.log(err);
-    return "false";
-  }
-};
-
-const q_get_home_id = async (params) => {
-  try {
-    const sql = Q_Formatter(
-      `SELECT * FROM home_translation WHERE id = ?;`,
-      params
-    );
-    const res = await query(sql, []);
-    return res.rows[0];
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_add_home = async (translations) => {
-  try {
-    for (i = 0; i < translations.length; i++) {
-      const lang_id = translations[i].lang_id;
-      const topic_title = translations[i].title.topic_title;
-      const faciliti_title_s = translations[i].title.faciliti_title_s;
-      const faciliti_title_b = translations[i].title.faciliti_title_b;
-      const agencie_title = translations[i].title.agencie_title;
-      const agencie_content = translations[i].text.agencie_content;
-      const faciliti_text = translations[i].text.faciliti_text;
-      const sql_at = Q_Formatter(
-        `insert into home_translation(lang_id, topic_title , faciliti_title_s , 
-          faciliti_title_b , faciliti_text , agencie_title, agencie_content )
-        values(?, ?, ?, ?, ?, ?, ?) returning *;`,
-        [
-          lang_id,
-          topic_title,
-          faciliti_title_s,
-          faciliti_title_b,
-          faciliti_text,
-          agencie_title,
-          agencie_content,
-        ]
-      );
-      var res_at = await query(sql_at, []);
-    }
-    return res_at.rows[0];
   } catch (err) {
     console.log(err);
     return "false";
@@ -528,7 +784,6 @@ const q_save_home = async (params, image, section) => {
               image,
               "topics"
             );
-            console.log(new_image_path);
             const sql_t = Q_Formatter(
               `UPDATE topics set image_path = ? where id = ? returning *;`,
               [new_image_path, topic_id]
@@ -536,18 +791,31 @@ const q_save_home = async (params, image, section) => {
             const res_t = await query(sql_t, []);
             var new_topic_id = res_t.rows[0].id;
           }
-          for (i = 0; i < translations.length; i++) {
-            const title = translations[0].title.title;
-            const content = translations[0].text.content;
-            const id = translations[0].id;
-            const t_id = image ? new_topic_id : translations[0].topic_id;
-            const sql_tt = Q_Formatter(
-              `UPDATE topics_translations SET  topic_id = ?, title = ?, content = ? 
+          if (translations.text) {
+            for (i = 0; i < translations.length; i++) {
+              const title = translations[0].title.title;
+              const content = translations[0].text.content;
+              const id = translations[0].id;
+              const t_id = image ? new_topic_id : translations[0].topic_id;
+              const sql_tt = Q_Formatter(
+                `UPDATE topics_translations SET  topic_id = ?, title = ?, content = ?
             WHERE id = ? returning *;`,
-              [t_id, title, content, id]
-            );
-            var res_tt = await query(sql_tt, []);
+                [t_id, title, content, id]
+              );
+              var res_tt = await query(sql_tt, []);
+            }
+          } else {
+            for (i = 0; i < translations.length; i++) {
+              const topic_title = translations[0].title.topic_title;
+              const id = translations[0].id;
+              const sql_tt = Q_Formatter(
+                `UPDATE home_translation SET  topic_title = ? WHERE id = ? returning *;`,
+                [topic_title, id]
+              );
+              var res_tt = await query(sql_tt, []);
+            }
           }
+
           return res_tt.rows[0];
         } catch (err) {
           console.log(err);
@@ -659,7 +927,7 @@ const q_save_home = async (params, image, section) => {
         try {
           const translations = params.translations;
           const id = params.id;
-          const number = params.number;
+          const number = translations[0].title.number;
           const sql_s = Q_Formatter(
             `update statistics set number = ? where id = ? returning *;`,
             [number, id]
@@ -692,6 +960,31 @@ const q_save_home = async (params, image, section) => {
   }
 };
 
+const q_delete_home = async (id, image_path, section) => {
+  try {
+    try {
+      console.log(image_path);
+      const new_i = "/" + image_path;
+      console.log(new_i);
+      await imageUP.DeleteImage(new_i);
+      const sql_t = Q_Formatter(
+        `DELETE FROM sliders where id = ? returning *;`,
+        [id]
+      );
+      const res_t = await query(sql_t, []);
+      console.log(res_t.rows);
+      return res_tt.rows[0];
+    } catch (err) {
+      console.log(err);
+      return "false";
+    }
+
+    return res.rows[0];
+  } catch (err) {
+    return "false";
+  }
+};
+
 //--------------contact------------//
 const q_get_contact = async () => {
   try {
@@ -716,19 +1009,6 @@ const q_get_contact = async () => {
     const res = await query(sql, []);
     console.log(res);
     return res.rows;
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_get_contact_id = async (params) => {
-  try {
-    const sql = Q_Formatter(
-      `SELECT * FROM contact_translation WHERE id = ?;`,
-      params
-    );
-    const res = await query(sql, []);
-    return res.rows[0];
   } catch (err) {
     return "false";
   }
@@ -814,43 +1094,21 @@ const q_save_contact = async (params) => {
 //--------------about------------//
 const q_get_about = async () => {
   try {
-    const sql = Q_Formatter(`WITH sub_q as (
+    const sql = Q_Formatter(`WITH at as (
       select
-        sq_at.about_id, 
+        sq_at.id, sq_at.lang_id,
         json_build_object('small_title',sq_at.small_title,'big_title',sq_at.big_title) as title,
         json_build_object('content',sq_at.content) as text
       from about_translation as sq_at 
-    ),
-    at as (
-      SELECT 
-      at.id, at.lang_id, at.about_id,
-      sub_q.title,
-      sub_q.text
-      FROM about_translation as at
-      inner join sub_q on sub_q.about_id = at.about_id 
     )
-    SELECT about.id, about.image_path,
-        (SELECT json_agg(at.*) as translations FROM at WHERE at.about_id = about.id) 
-        FROM about;`);
+    SELECT
+        json_agg(at.*) as translations  
+    FROM at;`);
     const res = await query(sql, []);
-    for (i = 0; i < res.rows.length; i++) {
-      const image_path = res.rows[i].image_path;
-      res.rows[i].image_path = image_path + "-700.jpg";
-    }
 
     return res.rows;
   } catch (err) {
     console.log(err);
-    return "false";
-  }
-};
-
-const q_get_about_id = async (params) => {
-  try {
-    const sql = Q_Formatter(`SELECT * FROM about_translation;`, params);
-    const res = await query(sql, []);
-    return res.rows[0];
-  } catch (err) {
     return "false";
   }
 };
@@ -888,29 +1146,14 @@ const q_add_about = async (params, image) => {
   }
 };
 
-const q_save_about = async (params, image) => {
+const q_save_about = async (params) => {
   try {
     const translations = params.translations;
-    const id = params.id;
-    const image_path = params.image_path;
-    if (image) {
-      const index = image_path.indexOf("-");
-      const delete_image_path = "/" + image_path.substring(0, index);
-      console.log(delete_image_path);
-      await imageUP.DeleteImage(delete_image_path);
-      const new_image_path = await imageUP.OneImageUploadMV(image, "about");
-      const sql = Q_Formatter(
-        `UPDATE about SET image_path = ? WHERE id = ? returning *;`,
-        [new_image_path, id]
-      );
-      var res_a = await query(sql, []);
-    }
     for (i = 0; i < translations.length; i++) {
       const sql_2 = Q_Formatter(
-        `UPDATE about_translation SET about_id = ?, small_title = ?, 
+        `UPDATE about_translation SET small_title = ?, 
       big_title = ?, content  = ? WHERE id = ?;`,
         [
-          id,
           translations[i].title.small_title,
           translations[i].title.big_title,
           translations[i].text.content,
@@ -926,6 +1169,39 @@ const q_save_about = async (params, image) => {
     return "false";
   }
 };
+//--------------about_image------------//
+const q_get_about_image = async () => {
+  try {
+    const sql = `SELECT * FROM about_image;`;
+    const res = await query(sql, []);
+    return res.rows;
+  } catch (err) {
+    console.log(err);
+    return "false";
+  }
+};
+
+const q_save_about_image = async (params, image) => {
+  try {
+    const image_path = params.image_path;
+    const id = params.id;
+    const delete_image = "/" + image_path;
+    await imageUP.DeleteImage(delete_image);
+    const new_image_path = await imageUP.OneImageUploadMV(
+      image,
+      "about-images"
+    );
+    const sql = Q_Formatter(
+      `update about_image set image_path = ?, posision = ? where id = ? returning *;`,
+      [new_image_path, params.posision, id]
+    );
+    const res = await query(sql, []);
+    return res.rows;
+  } catch (err) {
+    console.log(err);
+    return "false";
+  }
+};
 
 //--------------product------------//
 const q_get_product = async () => {
@@ -935,8 +1211,7 @@ const q_get_product = async () => {
     pt as (
       SELECT 
       prt.id, prt.lang_id, prt.product_id,
-      json_build_object('name',prt.name) as title,
-      json_build_object('text',prt.text) as text
+      json_build_object('name',prt.name, 'button_text',prt.button_text ) as title
       FROM products_translation as prt
     )
     SELECT products.id, products.image_path,
@@ -946,19 +1221,6 @@ const q_get_product = async () => {
     return res.rows;
   } catch (err) {
     console.log(err);
-    return "false";
-  }
-};
-
-const q_get_product_id = async (params) => {
-  try {
-    const sql = Q_Formatter(
-      `SELECT * FROM products_translation WHERE id = ?;`,
-      params
-    );
-    const res = await query(sql, []);
-    return res.rows[0];
-  } catch (err) {
     return "false";
   }
 };
@@ -976,11 +1238,11 @@ const q_add_product = async (params, image) => {
     for (i = 0; i < translations.length; i++) {
       const lang_id = translations[i].lang_id;
       const name = translations[i].title.name;
-      const text = translations[i].text.text;
+      const button_text = translations[i].title.button_text;
       const sql_pt = Q_Formatter(
-        `insert into products_translation(lang_id, product_id, name, text)
+        `insert into products_translation(lang_id, product_id, name, button_text)
         values(?, ?, ?, ?) returning *;`,
-        [lang_id, product_id, name, text]
+        [lang_id, product_id, name, button_text]
       );
       var res_pt = await query(sql_pt, []);
     }
@@ -1011,20 +1273,19 @@ const q_save_product = async (params, image) => {
       console.log("aaaa", res_p.rows);
       var product_id = res_p.rows[0].id;
     }
-
+    console.log("translations", translations);
     for (i = 0; i < translations.length; i++) {
-      const name = translations[0].title.name;
-      const text = translations[0].text.text;
-      const id = translations[0].id;
+      const name = translations[i].title.name;
+      const button_text = translations[i].title.button_text;
+      const id = translations[i].id;
       const new_product_id = image ? product_id : translations[0].product_id;
       const sql_pt = Q_Formatter(
-        `UPDATE products_translation SET  product_id = ?, name = ?, text = ? 
+        `UPDATE products_translation SET  product_id = ?, name = ?, button_text = ?
         WHERE id = ? returning *;`,
-        [new_product_id, name, text, id]
+        [new_product_id, name, button_text, id]
       );
       var res_pt = await query(sql_pt, []);
     }
-
     return res_pt.rows[0];
   } catch (err) {
     console.log(err);
@@ -1034,8 +1295,7 @@ const q_save_product = async (params, image) => {
 
 const q_delete_product = async (id, image_path) => {
   try {
-    const index = image_path.indexOf("-");
-    const delete_image_path = "/" + image_path.substring(0, index);
+    const delete_image_path = "/" + image_path;
     console.log(delete_image_path);
     await imageUP.DeleteImage(delete_image_path);
     const sql = `DELETE FROM products WHERE id = $l7k$${id}$l7k$ RETURNING *;`;
@@ -1075,22 +1335,32 @@ const q_get_header = async (menu) => {
   }
 };
 
-const q_get_header_id = async () => {
+const q_add_header = async (params, menu, image) => {
   try {
-    const sql = Q_Formatter(`SELECT * FROM  WHERE id = ?;`, params);
+    console.log(menu);
+    const translations = params.translations;
+    const image_path = await imageUP.OneImageUploadMV(image, "header");
+    const sql = Q_Formatter(
+      `INSERT INTO header_image(menu, image_path) VALUES(?, ?) RETURNING *;`,
+      [menu, image_path]
+    );
     const res = await query(sql, []);
-    return res;
+    const header_id = res.rows[0].id;
+    for (i = 0; i < translations.length; i++) {
+      const lang_id = translations[i].lang_id;
+      const small_text = translations[i].text.small_text;
+      const text = translations[i].text.text;
+      const sql_pt = Q_Formatter(
+        `insert into header_text_translation(lang_id, header_image_id, small_text , text )
+        values(?, ?, ?, ?) returning *;`,
+        [lang_id, header_id, small_text, text]
+      );
+      var res_pt = await query(sql_pt, []);
+    }
+    console.log(res_pt.rows);
+    return res_pt.rows;
   } catch (err) {
-    return "false";
-  }
-};
-
-const q_add_header = async (translations, menu, image) => {
-  try {
-    const sql = Q_Formatter(`RETURNING *;`, params);
-    const res = await query(sql, []);
-    return res;
-  } catch (err) {
+    console.log(err);
     return "false";
   }
 };
@@ -1136,10 +1406,16 @@ const q_save_header = async (params, menu, image) => {
   }
 };
 
-const q_delete_header = async () => {
+const q_delete_header = async (id, image_path, menu) => {
   try {
-    const sql = Q_Formatter(`RETURNING *;`, params);
+    const del_image_path = "/" + image_path;
+    await imageUP.DeleteImage(del_image_path);
+    const sql = Q_Formatter(
+      `DELETE FROM header_image WHERE id = ? RETURNING *;`,
+      [id]
+    );
     const res = await query(sql, []);
+    console.log(res.rows);
     return res;
   } catch (err) {
     return "false";
@@ -1163,16 +1439,6 @@ const q_get_address = async () => {
     FROM ft ;`);
     const res = await query(sql, []);
     return res.rows;
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_get_address_id = async (params) => {
-  try {
-    const sql = Q_Formatter(`SELECT * FROM address WHERE id = ?;`, params);
-    const res = await query(sql, []);
-    return res.rows[0];
   } catch (err) {
     return "false";
   }
@@ -1220,45 +1486,10 @@ const q_delete_address = async (params) => {
 };
 
 //--------------statistics------------//
-const q_get_statistics = async () => {
-  try {
-    const sql = Q_Formatter(`SELECT * FROM statistics;`);
-    const res = await query(sql, []);
-    return res.rows;
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_get_statistics_id = async (params) => {
-  try {
-    const sql = Q_Formatter(`SELECT * FROM statistics WHERE id = ?;`, params);
-    const res = await query(sql, []);
-    return res.rows[0];
-  } catch (err) {
-    return "false";
-  }
-};
-
 const q_add_statistics = async (params) => {
   try {
     const sql = Q_Formatter(
       `INSERT INTO statistics(lang_id, text, number) VALUES(?, ?, ?) RETURNING *;`,
-      params
-    );
-    const res = await query(sql, []);
-    return res.rows[0];
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_save_statistics = async (params) => {
-  try {
-    const sql = Q_Formatter(
-      `UPDATE statistics SET 
-        text = ?, number = ?, created_at = clock_timestamp() 
-        WHERE id = ? RETURNING *;`,
       params
     );
     const res = await query(sql, []);
@@ -1281,109 +1512,8 @@ const q_delete_statistics = async (params) => {
   }
 };
 
-//--------------topic------------//
-const q_get_topic = async () => {
-  try {
-    const sql = Q_Formatter(`SELECT * FROM topics_translations;`);
-    const res = await query(sql, []);
-    return res.rows;
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_get_topic_id = async () => {
-  try {
-    const sql = Q_Formatter(
-      `SELECT * FROM topics_translations WHERE id = ?;`,
-      params
-    );
-    const res = await query(sql, []);
-    return res.rows[0];
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_add_topic = async (params, image) => {
-  try {
-    const image_path = await imageUP.OneImageUploadMV(image, "topics");
-    params.push(image_path);
-    const sql = Q_Formatter(
-      `INSERT INTO topics_translations(lang_id, title, content, image_path) VALUES(?, ?, ?, ?) RETURNING *;`,
-      params
-    );
-    const res = await query(sql, []);
-    return res.rows[0];
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_save_topic = async (params, image) => {
-  try {
-    const sql = Q_Formatter(
-      `UPDATE topics_translations SET 
-        title = ?, content = ?, created_at = clock_timestamp() 
-        WHERE id = ? RETURNING *;`,
-      params
-    );
-    const res = await query(sql, []);
-    if (image) {
-      await imageUpload.Deletefile(
-        path.normalize(__dirname + "./../../" + res.rows[0].image_path)
-      );
-      const image_path = await imageUP.OneImageUploadMV(image, "topics");
-      const sql = Q_Formatter(
-        `UPDATE topics_translations SET image_path = ?, created_at = clock_timestamp() WHERE id = ?;`,
-        [image_path, res.rows[0].id]
-      );
-      await query(sql, []);
-    }
-    return res.rows[0];
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_delete_topic = async (params) => {
-  try {
-    const sql = Q_Formatter(
-      `DELETE FROM topics_translations WHERE id = ? RETURNING *;`,
-      params
-    );
-    const res = await query(sql, []);
-    return res.rows[0];
-  } catch (err) {
-    return "false";
-  }
-};
-
 //--------------slider------------//
-const q_get_slider = async () => {
-  try {
-    const sql = Q_Formatter(`SELECT * FROM sliders_translations;`);
-    const res = await query(sql, []);
-    return res.rows;
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_get_slider_id = async () => {
-  try {
-    const sql = Q_Formatter(
-      `SELECT * FROM sliders_translations WHERE id = ?;`,
-      params
-    );
-    const res = await query(sql, []);
-    return res.rows[0];
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_add_slider = async (params, image) => {
+const q_add_slider = async (image) => {
   try {
     const image_path = await imageUP.OneImageUploadMV(image, "sliders");
     const sql = Q_Formatter(
@@ -1397,38 +1527,13 @@ const q_add_slider = async (params, image) => {
   }
 };
 
-const q_save_slider = async (id, image) => {
+const q_delete_slider = async (id, image_path) => {
   try {
-    const sql = Q_Formatter(
-      `SELECT image_path FROM faciliti_images WHERE id = ?;`,
-      [id]
-    );
-    const res = await query(sql, []);
-    if (image) {
-      await imageUpload.Deletefile(
-        path.normalize(__dirname + "./../../" + res.rows[0].image_path)
-      );
-      const image_path = await imageUP.OneImageUploadMV(
-        image,
-        "faciliti_images"
-      );
-      const sql = Q_Formatter(
-        `UPDATE faciliti_images SET image_path = ?, created_at = clock_timestamp() WHERE id = ?;`,
-        [image_path, res.rows[0].id]
-      );
-      var res_fi = await query(sql, []);
-    }
-    return res_fi.rows[0];
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_delete_slider = async (params) => {
-  try {
+    const del_image_path = "/" + image_path;
+    await imageUP.DeleteImage(del_image_path);
     const sql = Q_Formatter(
       `DELETE FROM sliders_translations WHERE id = ? RETURNING *;`,
-      params
+      [id]
     );
     const res = await query(sql, []);
     return res.rows[0];
@@ -1438,31 +1543,6 @@ const q_delete_slider = async (params) => {
 };
 
 //--------------faciliti_image------------//
-const q_get_faciliti_image = async () => {
-  try {
-    const sql = Q_Formatter(
-      `SELECT json_agg(faciliti_images.*) as images FROM faciliti_images;`
-    );
-    const res = await query(sql, []);
-    return res.rows;
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_get_faciliti_image_id = async () => {
-  try {
-    const sql = Q_Formatter(
-      `SELECT * FROM faciliti_images_translations WHERE id = ?;`,
-      params
-    );
-    const res = await query(sql, []);
-    return res.rows[0];
-  } catch (err) {
-    return "false";
-  }
-};
-
 const q_add_faciliti_image = async (image) => {
   try {
     const image_path = await imageUP.OneImageUploadMV(image, "faciliti_images");
@@ -1477,38 +1557,13 @@ const q_add_faciliti_image = async (image) => {
   }
 };
 
-const q_save_faciliti_image = async (id, image) => {
+const q_delete_faciliti_image = async (id, image_path) => {
   try {
-    const sql = Q_Formatter(
-      `SELECT image_path FROM faciliti_images WHERE id = ?;`,
-      [id]
-    );
-    const res = await query(sql, []);
-    if (image) {
-      await imageUpload.Deletefile(
-        path.normalize(__dirname + "./../../" + res.rows[0].image_path)
-      );
-      const image_path = await imageUP.OneImageUploadMV(
-        image,
-        "faciliti_images"
-      );
-      const sql = Q_Formatter(
-        `UPDATE faciliti_images SET image_path = ?, created_at = clock_timestamp() WHERE id = ?;`,
-        [image_path, res.rows[0].id]
-      );
-      var res_fi = await query(sql, []);
-    }
-    return res_fi.rows[0];
-  } catch (err) {
-    return "false";
-  }
-};
-
-const q_delete_faciliti_image = async (params) => {
-  try {
+    const del_image_path = "/" + image_path;
+    await imageUP.DeleteImage(del_image_path);
     const sql = Q_Formatter(
       `DELETE FROM faciliti_images_translations WHERE id = ? RETURNING *;`,
-      params
+      [id]
     );
     const res = await query(sql, []);
     return res.rows[0];
@@ -1520,101 +1575,81 @@ const q_delete_faciliti_image = async (params) => {
 module.exports = {
   //--phone--
   q_get_phone,
-  q_get_phone_id,
   q_add_phone,
   q_save_phone,
   q_delete_phone,
 
   //--gallery--
   q_get_gallery,
-  q_get_gallery_id,
   q_add_gallery,
   q_save_gallery,
   q_delete_gallery,
 
   //--mail--
   q_get_mail,
-  q_get_mail_id,
   q_add_mail,
   q_save_mail,
   q_delete_mail,
 
   //--language--
   q_get_language,
-  q_get_language_id,
   q_add_language,
   q_save_language,
   q_delete_language,
 
   //--footer--
   q_get_footer,
-  q_get_footer_id,
+  q_add_footer,
   q_save_footer,
+  q_delete_footer,
 
   //--home--
   q_get_home,
   q_add_home,
-  q_get_home_id,
   q_save_home,
+  q_delete_home,
 
   //--contact--
   q_get_contact,
-  q_get_contact_id,
   q_add_contact,
   q_save_contact,
 
   //--about--
   q_get_about,
   q_add_about,
-  q_get_about_id,
   q_save_about,
+
+  //--about_image--
+  q_get_about_image,
+  q_save_about_image,
 
   //--product--
   q_get_product,
-  q_get_product_id,
   q_add_product,
   q_save_product,
   q_delete_product,
 
   //--header--
   q_get_header,
-  q_get_header_id,
   q_add_header,
   q_save_header,
   q_delete_header,
 
   //--address--
   q_get_address,
-  q_get_address_id,
   q_add_address,
   q_save_address,
   q_delete_address,
 
   //--statistics--
-  q_get_statistics,
-  q_get_statistics_id,
   q_add_statistics,
-  q_save_statistics,
   q_delete_statistics,
 
-  //--topic--
-  q_get_topic,
-  q_get_topic_id,
-  q_add_topic,
-  q_save_topic,
-  q_delete_topic,
-
   //--slider--
-  q_get_slider,
-  q_get_slider_id,
   q_add_slider,
-  q_save_slider,
   q_delete_slider,
 
   //--faciliti--
-  q_get_faciliti_image,
-  q_get_faciliti_image_id,
   q_add_faciliti_image,
-  q_save_faciliti_image,
   q_delete_faciliti_image,
 };

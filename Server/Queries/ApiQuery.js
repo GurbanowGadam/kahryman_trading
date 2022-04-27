@@ -81,13 +81,14 @@ const get_home = async (lang) => {
 const get_about = async (lang) => {
   try {
     const sql = Q_Formatter(
-      `SELECT *, about.image_path 
-    FROM about_translation 
-    inner join about on about.id = about_translation.about_id
-    where lang_id = (SELECT id FROM languages WHERE short_name = ?) ;`,
+      `SELECT * FROM about_translation 
+        where lang_id = (SELECT id FROM languages WHERE short_name = ?) ;`,
       [lang]
     );
     const res = await query(sql, []);
+
+    const sql_image = Q_Formatter(`SELECT * FROM about_image;`, [lang]);
+    const res_image = await query(sql_image, []);
 
     const sql_header = Q_Formatter(
       `WITH slider as (
@@ -120,7 +121,12 @@ const get_about = async (lang) => {
     );
     const res_footer = await query(sql_footer, []);
 
-    return [res.rows[0], res_header.rows[0], res_footer.rows[0]];
+    return [
+      res.rows[0],
+      res_image.rows[0],
+      res_header.rows[0],
+      res_footer.rows[0],
+    ];
   } catch (err) {
     console.log(err);
     return "false";
@@ -270,7 +276,8 @@ const topics = async (data, lang) => {
     const upload_1 = image_path_1.substring(0, 6);
     const topics_1 = image_path_1.substring(7, 13);
     const image_1 = image_path_1.substring(14);
-    const new_image_path_1 = upload_1 + "/" + topics_1 + "/" + image_1;
+    const new_image_path_1 =
+      upload_1 + "/" + topics_1 + "/" + image_1 + "-1000.jpg";
     data.articles[0].attachments.linkedin_embed.post.message =
       res.rows[0].content;
     data.articles[0].attachments.linkedin_embed.user.name = res.rows[0].title;
@@ -281,7 +288,8 @@ const topics = async (data, lang) => {
     const upload_2 = image_path_2.substring(0, 6);
     const topics_2 = image_path_2.substring(7, 13);
     const image_2 = image_path_2.substring(14);
-    const new_image_path_2 = upload_2 + "/" + topics_2 + "/" + image_2;
+    const new_image_path_2 =
+      upload_2 + "/" + topics_2 + "/" + image_2 + "-1000.jpg";
     data.articles[1].body = res.rows[1].content;
     data.articles[1].title = res.rows[1].title;
     data.articles[1].cover_url = new_image_path_2;
@@ -291,7 +299,8 @@ const topics = async (data, lang) => {
     const upload_3 = image_path_3.substring(0, 6);
     const topics_3 = image_path_3.substring(7, 13);
     const image_3 = image_path_3.substring(14);
-    const new_image_path_3 = upload_3 + "/" + topics_3 + "/" + image_3;
+    const new_image_path_3 =
+      upload_3 + "/" + topics_3 + "/" + image_3 + "-1000.jpg";
     data.articles[2].attachments.facebook_post.message = res.rows[2].content;
     data.articles[2].attachments.facebook_post.from_name = res.rows[2].title;
     data.articles[2].attachments.facebook_post.picture = new_image_path_3;
@@ -304,14 +313,16 @@ const topics = async (data, lang) => {
     const new_image_path_4 = upload_4 + "/" + topics_4 + "/" + image_4;
     data.articles[3].attachments.facebook_post.message = res.rows[3].content;
     data.articles[3].attachments.facebook_post.from_name = res.rows[3].title;
-    data.articles[3].attachments.facebook_post.picture = new_image_path_4;
+    data.articles[3].attachments.facebook_post.picture =
+      new_image_path_4 + "-1000.jpg";
 
     //5
     const image_path_5 = res_2.rows[4].image_path;
     const upload_5 = image_path_5.substring(0, 6);
     const topics_5 = image_path_5.substring(7, 13);
     const image_5 = image_path_5.substring(14);
-    const new_image_path_5 = upload_5 + "/" + topics_5 + "/" + image_5;
+    const new_image_path_5 =
+      upload_5 + "/" + topics_5 + "/" + image_5 + "-1000.jpg";
     data.articles[4].attachments.linkedin_embed.post.message =
       res.rows[4].content;
     data.articles[4].attachments.linkedin_embed.user.name = res.rows[4].title;

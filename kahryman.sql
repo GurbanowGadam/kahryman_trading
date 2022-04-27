@@ -60,7 +60,7 @@ CREATE TABLE "footer"(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "lang_id" uuid NOT NULL,
     "text" CHARACTER VARYING(200) NOT NULL,
-    "right" CHARACTER VARYING(75) NOT NULL,
+    "bottum_title" CHARACTER VARYING(75) NOT NULL,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
     CONSTRAINT footer_lang_id_fk
         FOREIGN KEY("lang_id")
@@ -71,11 +71,11 @@ CREATE TABLE "footer"(
 CREATE TABLE "home_translation"(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "lang_id" uuid NOT NULL,
-    "topic_title" CHARACTER VARYING(25) NOT NULL,
-    "faciliti_title_s" CHARACTER VARYING(25) NOT NULL,
-    "faciliti_title_b" CHARACTER VARYING(25) NOT NULL,
+    "topic_title" CHARACTER VARYING(75) NOT NULL,
+    "faciliti_title_s" CHARACTER VARYING(75) NOT NULL,
+    "faciliti_title_b" CHARACTER VARYING(75) NOT NULL,
     "faciliti_text" TEXT NOT NULL,
-    "agencie_title" CHARACTER VARYING(25) NOT NULL,
+    "agencie_title" CHARACTER VARYING(75) NOT NULL,
     "agencie_content" TEXT NOT NULL,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
     CONSTRAINT home_translation_lang_id_fk
@@ -89,14 +89,6 @@ CREATE TABLE "faciliti_images"(
     "image_path" CHARACTER VARYING(75) NOT NULL,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
 );
-INSERT INTO faciliti_images(image_path)
-VALUES
-('upload\faciliti_images\image.jpg'),
-('upload\faciliti_images\image.jpg'),
-('upload\faciliti_images\image.jpg'),
-('upload\faciliti_images\image.jpg'),
-('upload\faciliti_images\image.jpg'),
-('upload\faciliti_images\image.jpg');
 
 
 CREATE TABLE contact_translation(
@@ -121,17 +113,16 @@ INSERT INTO contact_translation(lang_id, title, title_address, name, company_nam
 VALUES
 ('7a982366-ee48-4344-8c3b-33afea798205','title_en','title_en','name_en','company_name_en','mail_en','subject_en','message_en','button_en');
 
-CREATE TABLE about(
+CREATE TABLE about_image(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "image_path" CHARACTER VARYING(75) NOT NULL,
+    "posision" CHARACTER VARYING(25) NOT NULL,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
 );
-insert into about(image_path) VALUES('upload\about\0b9bd9aef74625c2898d028684d34151-l 1 (1).jpg');s
 
 CREATE TABLE about_translation(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "lang_id" uuid NOT NULL,
-    "about_id" uuid NOT NULL,
     "small_title" CHARACTER VARYING(25) NOT NULL,
     "big_title" CHARACTER VARYING(25) NOT NULL,
     "content" TEXT NOT NULL,
@@ -139,10 +130,6 @@ CREATE TABLE about_translation(
     CONSTRAINT about_translation_lang_id_fk
         FOREIGN KEY("lang_id")
             REFERENCES languages("id")
-                ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT about_translation_about_id_fk
-        FOREIGN KEY("about_id")
-            REFERENCES about("id")
                 ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -275,14 +262,26 @@ VALUES
 
 CREATE TABLE "address"(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
+    "address" CHARACTER VARYING(100) NOT NULL,
+    "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp()
+);
+insert into address(address) VALUES('aaaaaaa');
+CREATE TABLE "address_translations"(
+    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "lang_id" uuid NOT NULL,
+    "address_id" uuid NOT NULL,
     "address" CHARACTER VARYING(100) NOT NULL,
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
-    CONSTRAINT locasions_lang_id_fk
+    CONSTRAINT address_translations_lang_id_fk
         FOREIGN KEY("lang_id")
             REFERENCES languages("id")
+                ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT address_translations_address_id_fk
+        FOREIGN KEY("address_id")
+            REFERENCES address("id")
                 ON DELETE CASCADE ON UPDATE CASCADE
 );
+INSERT INTO address_translations(lang_id, address_id, address) VALUES('7a982366-ee48-4344-8c3b-33afea798205','22f73b94-9188-4ca4-8820-e0e51d58421b','aaaaaa')
 CREATE TABLE "statistics"(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "number" NUMERIC(10) NOT NULL,

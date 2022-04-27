@@ -29,9 +29,12 @@ const about = async (req, res) => {
     const { lang } = req.params;
     const result = await apiQuery.get_about(lang);
     if (result != "false") {
-      res
-        .status(status.OK)
-        .json({ data: result[0], header: result[1], footer: result[2] });
+      res.status(status.OK).json({
+        data: result[0],
+        images: result[1],
+        header: result[2],
+        footer: result[3],
+      });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
     }
@@ -144,8 +147,8 @@ const send_email = async (req, res) => {
       async function main() {
         // create reusable transporter object using the default SMTP transport
         let transporter = nodemailer.createTransport({
-          host: "smtp.gmail.com",
-          port: 465,
+          host: process.env.MAIL_HOST,
+          port: process.env.MAIL_PORT,
           secure: true,
           // service: 'gmail.com',
           auth: {

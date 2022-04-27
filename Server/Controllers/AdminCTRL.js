@@ -2,20 +2,6 @@ const status = require("./../Utilis/status");
 const adminQuery = require("./../Queries/AdminQuery");
 
 //-----------phone--------------//
-const get_phone_id = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await adminQuery.q_get_phone_id([id]);
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
 const add_phone = async (req, res) => {
   try {
     const { phone_number } = req.body;
@@ -59,20 +45,6 @@ const delete_phone = async (req, res) => {
 };
 
 //-----------mail--------------//
-const get_mail_id = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await adminQuery.q_get_mail_id(id);
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
 const add_mail = async (req, res) => {
   try {
     const { mail } = req.body;
@@ -116,27 +88,12 @@ const delete_mail = async (req, res) => {
 };
 
 //-----------gallery--------------//
-const get_gallery_id = async (req, res) => {
-  try {
-    const { id } = req.body;
-    const result = await adminQuery.q_get_gallery_id([id]);
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
 const add_gallery = async (req, res) => {
   try {
-    const { type } = req.body;
-    const { gallery } = req.files;
-    console.log(req.body);
-    console.log(req.files);
-    const result = await adminQuery.q_add_gallery(type, gallery);
+    console.log(await req.files);
+    const gallery = await req.files.image;
+    console.log(gallery);
+    const result = await adminQuery.q_add_gallery(gallery);
     if (result != "false") {
       res.status(status.OK).json({ msg: "add successfull!" });
     } else {
@@ -149,33 +106,16 @@ const add_gallery = async (req, res) => {
 
 const save_gallery = async (req, res) => {
   try {
-    console.log(req.body);
-    console.log(req.files);
-    const gallery = req.files ? req.files.gallery : null;
+    console.log("geldi");
+    //console.log(req.body);
+    //console.log(req.files);
+    const gallery = (await req.files) ? req.files.image : null;
+    console.log("geldi1");
     const translations = JSON.parse(req.body.translations);
     const result = await adminQuery.q_save_gallery(translations, gallery);
-    res.status(status.OK).json({ data: result });
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
-const delete_gallery = async (req, res) => {
-  try {
-    const result = await adminQuery.q_delete_gallery();
-    res.status(status.OK).json({ data: result });
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
-//----------language-----------------//
-const get_language_id = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await adminQuery.q_get_language_id([id]);
+    console.log("geldi2");
     if (result != "false") {
-      res.status(status.OK).json({ data: result });
+      res.status(status.OK).json({ msg: "save successfull!" });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
     }
@@ -184,6 +124,27 @@ const get_language_id = async (req, res) => {
   }
 };
 
+const delete_gallery = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { id, type } = await req.body;
+    const gallery_path = req.body.image_path
+      ? req.body.image_path
+      : req.body.video_path;
+    console.log(gallery_path);
+    console.log(gallery_path, id, type);
+    const result = await adminQuery.q_delete_gallery(gallery_path, id, type);
+    if (result != "false") {
+      res.status(status.OK).json({ msg: "delete successfull!" });
+    } else {
+      res.status(status.ERROR).json({ msg: "query error" });
+    }
+  } catch (err) {
+    res.status(status.ERROR).json({ msg: err.message });
+  }
+};
+
+//----------language-----------------//
 const add_language = async (req, res) => {
   try {
     const { name, short_name } = req.body;
@@ -231,12 +192,15 @@ const delete_language = async (req, res) => {
 };
 
 //----------footer-----------------//
-const get_footer_id = async (req, res) => {
+const add_footer = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await adminQuery.q_get_footer_id([id]);
+    console.log("body", req.body);
+    const translations = JSON.parse(req.body.translations);
+    const section = req.params.section;
+    console.log("translations", translations);
+    const result = await adminQuery.q_add_footer(translations, section);
     if (result != "false") {
-      res.status(status.OK).json({ data: result });
+      res.status(status.OK).json({ msg: "save successfull" });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
     }
@@ -247,8 +211,32 @@ const get_footer_id = async (req, res) => {
 
 const save_footer = async (req, res) => {
   try {
-    const { text, right, id } = req.body;
-    const result = await adminQuery.q_save_footer([text, right, id]);
+    console.log("body", req.body);
+    const translations = JSON.parse(req.body.translations);
+    const section = req.params.section;
+    const { id, number, mail } = translations;
+    console.log("translations", translations);
+    const result = await adminQuery.q_save_footer(
+      [translations],
+      [number, mail, id],
+      section
+    );
+    if (result != "false") {
+      res.status(status.OK).json({ msg: "save successfull" });
+    } else {
+      res.status(status.ERROR).json({ msg: "query error" });
+    }
+  } catch (err) {
+    res.status(status.ERROR).json({ msg: err.message });
+  }
+};
+
+const delete_footer = async (req, res) => {
+  try {
+    console.log("body", req.body);
+    const section = req.params.section;
+    const { id } = req.body;
+    const result = await adminQuery.q_delete_footer(id, section);
     if (result != "false") {
       res.status(status.OK).json({ msg: "save successfull" });
     } else {
@@ -260,20 +248,6 @@ const save_footer = async (req, res) => {
 };
 
 //----------home-----------------//
-const get_home_id = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await adminQuery.q_get_home_id([id]);
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
 const add_home = async (req, res) => {
   try {
     console.log(req.body);
@@ -282,7 +256,7 @@ const add_home = async (req, res) => {
     const translations = JSON.parse(req.body.translations);
     console.log(translations);
     const image = req.files ? req.files.image : null;
-    const result = await adminQuery.q_add_home(translations);
+    const result = await adminQuery.q_add_home(translations, image, section);
     if (result != "false") {
       res.status(status.OK).json({ msg: "add successfull!" });
     } else {
@@ -313,21 +287,24 @@ const save_home = async (req, res) => {
   }
 };
 
-//----------contact-----------------//
-const get_contact_id = async (req, res) => {
+const delete_home = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await adminQuery.q_get_contact_id([id]);
+    console.log("body =>", req.body);
+    const { id, image_path } = req.body;
+    const section = req.params.section;
+    console.log("salam");
+    const result = await adminQuery.q_delete_home(id, image_path, section);
     if (result != "false") {
-      res.status(status.OK).json({ data: result });
+      res.status(status.OK).json({ msg: "save successfull" });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
     }
   } catch (err) {
+    console.log(err);
     res.status(status.ERROR).json({ msg: err.message });
   }
 };
-
+//----------contact-----------------//
 const add_contact = async (req, res) => {
   try {
     const { translations } = req.body;
@@ -360,20 +337,6 @@ const save_contact = async (req, res) => {
 };
 
 //----------about-----------------//
-const get_about_id = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await adminQuery.q_get_about_id([id]);
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
 const add_about = async (req, res) => {
   try {
     const translations = JSON.parse(req.body.translations);
@@ -392,12 +355,42 @@ const add_about = async (req, res) => {
 const save_about = async (req, res) => {
   try {
     console.log(req.body);
-    console.log(req.files);
+    const translations = JSON.parse(req.body.translations);
+    console.log("translations =>", translations);
+    const result = await adminQuery.q_save_about(translations);
+    if (result != "false") {
+      res.status(status.OK).json({ msg: "save succesfull!" });
+    } else {
+      res.status(status.ERROR).json({ msg: "query error" });
+    }
+  } catch (err) {
+    res.status(status.ERROR).json({ msg: err.message });
+  }
+};
+
+//----------about_image-----------------//
+const add_about_image = async (req, res) => {
+  try {
+    const translations = JSON.parse(req.body.translations);
+    const image = req.files.image ? req.files.image : null;
+    const result = await adminQuery.q_add_about_image(translations, image);
+    if (result != "false") {
+      res.status(status.OK).json({ msg: "add successfull!" });
+    } else {
+      res.status(status.ERROR).json({ msg: "query error" });
+    }
+  } catch (err) {
+    res.status(status.ERROR).json({ msg: err.message });
+  }
+};
+
+const save_about_image = async (req, res) => {
+  try {
     const translations = JSON.parse(req.body.translations);
     const image = req.files ? req.files.image : null;
     console.log("image =>", image);
     console.log("translations =>", translations);
-    const result = await adminQuery.q_save_about(translations, image);
+    const result = await adminQuery.q_save_about_image(translations, image);
     if (result != "false") {
       res.status(status.OK).json({ msg: "save succesfull!" });
     } else {
@@ -409,20 +402,6 @@ const save_about = async (req, res) => {
 };
 
 //----------product-----------------//
-const get_product_id = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await adminQuery.q_get_product_id([id]);
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
 const add_product = async (req, res) => {
   try {
     console.log("body => ", req.body);
@@ -473,39 +452,33 @@ const delete_product = async (req, res) => {
 };
 
 //----------header-----------------//
-const get_header = async (req, res) => {
-  try {
-    const result = await adminQuery.q_get_header();
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
-const get_header_id = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await adminQuery.q_get_header_id([id]);
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
+// const get_header = async (req, res) => {
+//   try {
+//     const result = await adminQuery.q_get_header();
+//     if (result != "false") {
+//       res.status(status.OK).json({ data: result });
+//     } else {
+//       res.status(status.ERROR).json({ msg: "query error" });
+//     }
+//   } catch (err) {
+//     res.status(status.ERROR).json({ msg: err.message });
+//   }
+// };
 
 const add_header = async (req, res) => {
   try {
-    const { menu_p } = req.params;
-    const { translations, menu, image } = req.body;
-    const result = await adminQuery.q_add_header(translations, menu, image);
-    res.status(status.OK).json({ data: result });
+    const menu_p = req.params.menu;
+    const translations = JSON.parse(req.body.translations);
+    console.log(translations);
+    const image = req.files.image;
+    console.log("ima", image);
+    console.log(menu_p);
+    const result = await adminQuery.q_add_header(translations, menu_p, image);
+    if (result != "false") {
+      res.status(status.OK).json({ msg: "add successfull" });
+    } else {
+      res.status(status.ERROR).json({ msg: "query error" });
+    }
   } catch (err) {
     res.status(status.ERROR).json({ msg: err.message });
   }
@@ -522,28 +495,8 @@ const save_header = async (req, res) => {
     const image = req.files ? req.files.image : null;
     console.log(image);
     const result = await adminQuery.q_save_header(translations, menu, image);
-    res.status(status.OK).json({ data: result });
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
-const delete_header = async (req, res) => {
-  try {
-    const result = await adminQuery.q_delete_header();
-    res.status(status.OK).json({ data: result });
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
-//----------address-----------------//
-const get_address_id = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await adminQuery.q_get_address_id([id]);
     if (result != "false") {
-      res.status(status.OK).json({ data: result });
+      res.status(status.OK).json({ msg: "save successfull" });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
     }
@@ -552,6 +505,20 @@ const get_address_id = async (req, res) => {
   }
 };
 
+const delete_header = async (req, res) => {
+  try {
+    const menu = req.params.menu;
+    console.log(menu);
+    console.log("req.body", req.body);
+    const { id, image_path } = req.body;
+    const result = await adminQuery.q_delete_header(id, image_path, menu);
+    res.status(status.OK).json({ data: result });
+  } catch (err) {
+    res.status(status.ERROR).json({ msg: err.message });
+  }
+};
+
+//----------address-----------------//
 const add_address = async (req, res) => {
   try {
     const { address, lang_id } = req.body;
@@ -595,33 +562,6 @@ const delete_address = async (req, res) => {
 };
 
 //----------statistics-----------------//
-const get_statistics = async (req, res) => {
-  try {
-    const result = await adminQuery.q_get_statistics();
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
-const get_statistics_id = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await adminQuery.q_get_statistics_id([id]);
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
 const add_statistics = async (req, res) => {
   try {
     const { lang_id, text, number } = req.body;
@@ -665,38 +605,6 @@ const delete_statistics = async (req, res) => {
 };
 
 //----------topic-----------------//
-const get_topic_id = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await adminQuery.q_get_topic_id([id]);
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
-const add_topic = async (req, res) => {
-  try {
-    const { lang_id, title, content } = req.body;
-    const { image } = req.files;
-    const result = await adminQuery.q_add_topic(
-      [lang_id, title, content],
-      image
-    );
-    if (result != "false") {
-      res.status(status.OK).json({ msg: "add successfull!" });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
 const save_topic = async (req, res) => {
   try {
     const { title, content, id } = req.body;
@@ -712,35 +620,7 @@ const save_topic = async (req, res) => {
   }
 };
 
-const delete_topic = async (req, res) => {
-  try {
-    const { id } = req.body;
-    const result = await adminQuery.q_delete_topic([id]);
-    if (result != "false") {
-      res.status(status.OK).json({ msg: "delete successfull!" });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
 //----------slider-----------------//
-const get_slider_id = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await adminQuery.q_get_slider_id([id]);
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
 const add_slider = async (req, res) => {
   try {
     const { image } = req.files;
@@ -772,8 +652,9 @@ const save_slider = async (req, res) => {
 
 const delete_slider = async (req, res) => {
   try {
-    const { id } = req.body;
-    const result = await adminQuery.q_delete_slider([id]);
+    const { id, image_path } = req.body;
+    console.log(id, image_path);
+    const result = await adminQuery.q_delete_slider(id, image_path);
     if (result != "false") {
       res.status(status.OK).json({ msg: "delete successfull!" });
     } else {
@@ -785,20 +666,6 @@ const delete_slider = async (req, res) => {
 };
 
 //----------faciliti_image-----------------//
-const get_faciliti_image_id = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await adminQuery.q_get_faciliti_image_id([id]);
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
 const add_faciliti_image = async (req, res) => {
   try {
     const { image } = req.files;
@@ -847,32 +714,13 @@ const get_func = async (req, res) => {
   try {
     const url = req.url;
     console.log("url => ", url);
-    const test = url.indexOf("/", 2);
-    if (test != -1) {
-      console.log(test);
-      var x = url.substring(5, test);
-      console.log(x);
+    const index = url.indexOf("/", 2);
+    if (index != -1) {
+      var x = url.substring(5, index);
     } else {
       var x = url.slice(5);
     }
-    console.log(x);
     switch (x) {
-      case "phone":
-        result = await adminQuery.q_get_phone();
-        if (result != "false") {
-          res.status(status.OK).json({ data: result });
-        } else {
-          res.status(status.ERROR).json({ msg: "query error" });
-        }
-        break;
-      case "mail":
-        result = await adminQuery.q_get_mail();
-        if (result != "false") {
-          res.status(status.OK).json({ data: result });
-        } else {
-          res.status(status.ERROR).json({ msg: "query error" });
-        }
-        break;
       case "language":
         result = await adminQuery.q_get_language();
         if (result != "false") {
@@ -907,6 +755,14 @@ const get_func = async (req, res) => {
           res.status(status.ERROR).json({ msg: "query error" });
         }
         break;
+      case "about-image":
+        result = await adminQuery.q_get_about_image();
+        if (result != "false") {
+          res.status(status.OK).json({ data: result });
+        } else {
+          res.status(status.ERROR).json({ msg: "query error" });
+        }
+        break;
       case "product":
         result = await adminQuery.q_get_product();
         if (result != "false") {
@@ -934,30 +790,6 @@ const get_func = async (req, res) => {
           res.status(status.ERROR).json({ msg: "query error" });
         }
         break;
-      case "address":
-        result = await adminQuery.q_get_address();
-        if (result != "false") {
-          res.status(status.OK).json({ data: result });
-        } else {
-          res.status(status.ERROR).json({ msg: "query error" });
-        }
-        break;
-      case "topic":
-        result = await adminQuery.q_get_topic();
-        if (result != "false") {
-          res.status(status.OK).json({ data: result });
-        } else {
-          res.status(status.ERROR).json({ msg: "query error" });
-        }
-        break;
-      case "slider":
-        result = await adminQuery.q_get_slider();
-        if (result != "false") {
-          res.status(status.OK).json({ data: result });
-        } else {
-          res.status(status.ERROR).json({ msg: "query error" });
-        }
-        break;
       case "faciliti-image":
         result = await adminQuery.q_get_faciliti_image();
         if (result != "false") {
@@ -967,8 +799,8 @@ const get_func = async (req, res) => {
         }
         break;
       case "footer":
-        const lang = req.params.lang;
-        result = await adminQuery.q_get_footer(lang);
+        const section_1 = req.params.section;
+        result = await adminQuery.q_get_footer(section_1);
         if (result != "false") {
           res.status(status.OK).json({ data: result });
         } else {
@@ -983,89 +815,78 @@ const get_func = async (req, res) => {
 
 module.exports = {
   get_func,
+
   //---gallery---
-  get_gallery_id,
   add_gallery,
   save_gallery,
   delete_gallery,
 
   //---phone---
-  get_phone_id,
   add_phone,
   save_phone,
   delete_phone,
 
   //---mail---
-  get_mail_id,
   add_mail,
   save_mail,
   delete_mail,
 
   //---language---
-  get_language_id,
   add_language,
   save_language,
   delete_language,
 
   //---footer---
-  get_footer_id,
+  add_footer,
   save_footer,
+  delete_footer,
 
   //---home---
-  get_home_id,
   add_home,
   save_home,
+  delete_home,
 
   //---contact---
-  get_contact_id,
   add_contact,
   save_contact,
 
   //---about---
-  get_about_id,
   add_about,
   save_about,
 
+  //---about_image---
+  add_about_image,
+  save_about_image,
+
   //---product---
-  get_product_id,
   add_product,
   save_product,
   delete_product,
 
   //---header---
-  get_header,
-  get_header_id,
   add_header,
   save_header,
   delete_header,
 
   //---address---
-  get_address_id,
   add_address,
   save_address,
   delete_address,
 
   //---statistics---
-  get_statistics,
-  get_statistics_id,
   add_statistics,
   save_statistics,
   delete_statistics,
 
   //---topic---
-  get_topic_id,
-  add_topic,
   save_topic,
-  delete_topic,
 
   //---faciliti_image---
-  get_faciliti_image_id,
   add_faciliti_image,
   save_faciliti_image,
   delete_faciliti_image,
 
   //---slider---
-  get_slider_id,
   add_slider,
   save_slider,
   delete_slider,

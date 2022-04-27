@@ -21,6 +21,12 @@ app.use("/", function (req, res, next) {
   next();
 });
 
+const corsConfig = {
+  credentials: true,
+  origin: true,
+};
+app.use(cors(corsConfig));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
