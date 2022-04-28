@@ -10,9 +10,9 @@ const home = async (req, res) => {
     if (result != "false") {
       res.status(status.OK).json({
         header: result[0],
-        faciliti: result[1],
+        strategy: result[1],
         slider: result[2],
-        agens: result[3],
+        map: result[3],
         statistics: result[4],
         footer: result[5],
       });

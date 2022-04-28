@@ -123,7 +123,7 @@ const get_about = async (lang) => {
 
     return [
       res.rows[0],
-      res_image.rows[0],
+      res_image.rows,
       res_header.rows[0],
       res_footer.rows[0],
     ];
@@ -179,7 +179,12 @@ const get_product = async (lang) => {
 
 const get_gallery = async (lang) => {
   try {
-    const sql = Q_Formatter(`SELECT * FROM gallery;`);
+    const sql = Q_Formatter(`
+      select
+        (select json_agg(gallery.*) from gallery where type = 'image') as images, 
+        (select json_agg(gallery.*) from gallery where type = 'video') as videos
+      from gallery limit 1;;
+        `);
     const res = await query(sql, []);
 
     const sql_header = Q_Formatter(
@@ -213,8 +218,11 @@ const get_gallery = async (lang) => {
     );
     const res_footer = await query(sql_footer, []);
 
-    return [res.rows, res_header.rows[0], res_footer.rows[0]];
-  } catch (err) {}
+    return [res.rows[0], res_header.rows[0], res_footer.rows[0]];
+  } catch (err) {
+    console.log(err);
+    return "false";
+  }
 };
 
 const get_contact = async (lang) => {
@@ -340,16 +348,16 @@ const get_header = async (lang, menu) => {
   try {
     const sql_header = Q_Formatter(
       `WITH slider as (
-        SELECT 
+        SELECT
           hi.id,
           hi.image_path,
           htt.small_text,
           htt.text
         FROM header_image as hi
-        inner join header_text_translation as htt 
+        inner join header_text_translation as htt
         on htt.header_image_id = hi.id and htt.lang_id = (select id from languages where short_name = ?)
         WHERE hi.menu = ? )
-      select 
+      select
         ( select json_agg(slider.*) from slider) as slider,
         ( select json_agg(menu_translation.*) from menu_translation where lang_id = (select id from languages where short_name = ?) ) as menu,
         ( select json_agg(languages.*) from languages) as languages

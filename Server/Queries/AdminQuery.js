@@ -369,10 +369,10 @@ const q_add_footer = async (params, section) => {
       }
       case "mail": {
         try {
-          for (i = 0; i < translations.length; i++) {
+          for (i = 0; i < params.length; i++) {
             const sql = Q_Formatter(
               `INSERT INTO mails(mail) VALUES(?) RETURNING *;`,
-              [translations[i].title.mail]
+              [params[i].mail]
             );
             var res = await query(sql, []);
           }
@@ -1172,7 +1172,10 @@ const q_save_about = async (params) => {
 //--------------about_image------------//
 const q_get_about_image = async () => {
   try {
-    const sql = `SELECT * FROM about_image;`;
+    const sql = `
+      select
+        *
+      from about_image;`;
     const res = await query(sql, []);
     return res.rows;
   } catch (err) {
@@ -1183,17 +1186,21 @@ const q_get_about_image = async () => {
 
 const q_save_about_image = async (params, image) => {
   try {
+    console.log(params);
     const image_path = params.image_path;
     const id = params.id;
-    const delete_image = "/" + image_path;
-    await imageUP.DeleteImage(delete_image);
-    const new_image_path = await imageUP.OneImageUploadMV(
-      image,
-      "about-images"
-    );
+    if (image) {
+      const delete_image = "/" + image_path;
+      await imageUP.DeleteImage(delete_image);
+      var new_image_path = await imageUP.OneImageUploadMV(
+        image,
+        "about-images"
+      );
+    }
+    const image_path_sql = image ? new_image_path : image_path;
     const sql = Q_Formatter(
-      `update about_image set image_path = ?, posision = ? where id = ? returning *;`,
-      [new_image_path, params.posision, id]
+      `update about_image set image_path = ?, position = ? where id = ? returning *;`,
+      [image_path_sql, params.position, id]
     );
     const res = await query(sql, []);
     return res.rows;
@@ -1202,7 +1209,6 @@ const q_save_about_image = async (params, image) => {
     return "false";
   }
 };
-
 //--------------product------------//
 const q_get_product = async () => {
   try {

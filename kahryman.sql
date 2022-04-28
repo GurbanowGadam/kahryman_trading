@@ -20,7 +20,6 @@ CREATE TABLE languages(
     "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
     UNIQUE("short_name")
 );
-
     
 CREATE TABLE "image"(
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),

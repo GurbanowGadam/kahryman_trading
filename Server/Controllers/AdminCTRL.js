@@ -369,23 +369,9 @@ const save_about = async (req, res) => {
 };
 
 //----------about_image-----------------//
-const add_about_image = async (req, res) => {
-  try {
-    const translations = JSON.parse(req.body.translations);
-    const image = req.files.image ? req.files.image : null;
-    const result = await adminQuery.q_add_about_image(translations, image);
-    if (result != "false") {
-      res.status(status.OK).json({ msg: "add successfull!" });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
 const save_about_image = async (req, res) => {
   try {
+    console.log(req.body);
     const translations = JSON.parse(req.body.translations);
     const image = req.files ? req.files.image : null;
     console.log("image =>", image);
@@ -855,7 +841,6 @@ module.exports = {
   save_about,
 
   //---about_image---
-  add_about_image,
   save_about_image,
 
   //---product---

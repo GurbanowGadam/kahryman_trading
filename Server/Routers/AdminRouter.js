@@ -49,7 +49,6 @@ router.post("/save-about", AdminCRTL.save_about);
 
 //-------------about_image----------------------//
 router.get("/get-about-image", AdminCRTL.get_func);
-router.post("/add-about-image", AdminCRTL.add_about_image);
 router.post("/save-about-image", AdminCRTL.save_about_image);
 
 //-------------product----------------------//
