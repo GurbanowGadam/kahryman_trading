@@ -791,7 +791,7 @@ const q_save_home = async (params, image, section) => {
             const res_t = await query(sql_t, []);
             var new_topic_id = res_t.rows[0].id;
           }
-          if (translations.text) {
+          if (translations[0].text) {
             for (i = 0; i < translations.length; i++) {
               const title = translations[0].title.title;
               const content = translations[0].text.content;
@@ -812,6 +812,7 @@ const q_save_home = async (params, image, section) => {
                 `UPDATE home_translation SET  topic_title = ? WHERE id = ? returning *;`,
                 [topic_title, id]
               );
+              console.log(sql_tt);
               var res_tt = await query(sql_tt, []);
             }
           }

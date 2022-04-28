@@ -1,358 +1,310 @@
 {
-  "header": {
-    "menu": [
-      {
-        "id": "1",
-        "menu": "home"
-      },
-      {
-        "id": "2",
-        "menu": "about"
-      },
-      {
-        "id": "3",
-        "menu": "gallery"
-      },
-      {
-        "id": "4",
-        "menu": "product"
-      },
-      {
-        "id": "5",
-        "menu": "contact"
-      }
-    ],
-    "slider": [
-      {
-        "id": 1,
-        "text": 222,
-        "image_path": 222
-      },
-      {
-        "id": 1,
-        "text": 222,
-        "image_path": 222
-      },
-      {
-        "id": 1,
-        "text": 222,
-        "image_path": 222
-      }
-    ]
-  },
-  "about": {
-    "id": "1",
-    "small_title": "dsfsd",
-    "big_title": "dfsdfsf",
-    "content": "sdbnsjbfjsdf",
-    "button_text": "jdsnfkjskjd",
-    "image_path": "sdbjshfsdfsdf",
-    "image_text": "text",
-    "text_image": "image"
-  },
-  "topics": {
-    "title": "title_topic",
-    "topic_background": "image",
-    "arr": [
-      {
-        "id": "dsfs",
-        "title": "aaaaaa",
-        "content": "bbbbb",
-        "image_path": "cccccc"
-      },
-      {
-        "id": "mdnfj",
-        "title": "aaaaaa",
-        "content": "bbbbb",
-        "image_path": "cccccc"
-      },
-      {
-        "id": "sds",
-        "title": "aaaaaa",
-        "content": "bbbbb",
-        "image_path": "cccccc"
-      },
-      {
-        "id": "dsjnks",
-        "title": "aaaaaa",
-        "content": "bbbbb",
-        "image_path": "cccccc"
-      }
-    ]
-  },
-  "faciliti": {
-    "small_title": "hghghghg",
-    "big_title": "sdnbjbfdsh",
-    "text": "jsdnfkjdsn",
-    "button_text": "skndfkjskj",
-    "images": ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg"]
-  },
-  "sliders": [
+  "id": "e8w9ew9e8e98w",
+  "transport_type_id": "e8w9ew9e8e98w",
+  "router_name": "iran-uzbek",
+  "directions": [
     {
-      "id": "cxvxcv",
-      "slider_image": "dsfdsffds"
+      "direction": [
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "from",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "lotfabat"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "to",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "tashkent"
+        }
+      ],
+      "registration": [
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "artyk",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "farap",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "Iran side",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        }
+      ],
+      "price for": [
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "trailer foreign",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "trailer tm",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "track uz",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "track kz",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        }
+      ],
+      "total costs": [
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "other expenses",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "total costs",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "total for offer",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "profit",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        }
+      ]
     },
     {
-      "id": "cxvxcv",
-      "slider_image": "dsfdsffds"
+      "direction": [
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "from",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "lotfabat"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "to",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "tashkent"
+        }
+      ],
+      "registration": [
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "artyk",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "farap",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "Iran side",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        }
+      ],
+      "price for": [
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "trailer foreign",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "trailer tm",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "track uz",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "track kz",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        }
+      ],
+      "total costs": [
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "other expenses",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "total costs",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "total for offer",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "profit",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        }
+      ]
     },
     {
-      "id": "cxvxcv",
-      "slider_image": "dsfdsffds"
-    },
-    {
-      "id": "cxvxcv",
-      "slider_image": "dsfdsffds"
-    },
-    {
-      "id": "cxvxcv",
-      "slider_image": "dsfdsffds"
+      "direction": [
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "from",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "lotfabat"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "to",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "tashkent"
+        }
+      ],
+      "registration": [
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "artyk",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "farap",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "Iran side",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        }
+      ],
+      "price for": [
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "trailer foreign",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "trailer tm",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "track uz",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "track kz",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        }
+      ],
+      "total costs": [
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "other expenses",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "total costs",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "total for offer",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        },
+        {
+          "id": "e8w9ew9e8e98w",
+          "column_id": "e8w9ew9e8e98w",
+          "column_name": "profit",
+          "direction_id": "e8w9ew9e8e98w",
+          "value": "1"
+        }
+      ]
     }
-  ],
-  "agens": {
-    "title": "dbfhbsd",
-    "content": "jhsdf"
-  },
-  "statistis": [
-    {
-      "id": "dhhf",
-      "text": "skdhbfh",
-      "number": "123"
-    },
-    {
-      "id": "dhhf",
-      "text": "skdhbfh",
-      "number": "123"
-    },
-    {
-      "id": "dhhf",
-      "text": "skdhbfh",
-      "number": "123"
-    }
-  ],
-  "contact": {
-    "title": "shdbfj",
-    "address_title": "dbfhd",
-    "name": "sjdh",
-    "company_name": "bvvbvb",
-    "mail": "mdfjdhf",
-    "subject": "bsdhgsdh",
-    "message": "ksnjs",
-    "button_text": "dnbfhdg",
-    "address": [
-      {
-        "id": "dfd",
-        "address": "dsdsds"
-      },
-      {
-        "id": "dfd",
-        "address": "dsdsds"
-      },
-      {
-        "id": "dfd",
-        "address": "dsdsds"
-      }
-    ],
-    "phone_number": [
-      {
-        "id": "dfd",
-        "number": "dsdsds"
-      },
-      {
-        "id": "dfd",
-        "number": "dsdsds"
-      },
-      {
-        "id": "dfd",
-        "number": "dsdsds"
-      }
-    ],
-    "mails": [
-      {
-        "id": "dfd",
-        "mail": "dsdsds"
-      },
-      {
-        "id": "dfd",
-        "mail": "dsdsds"
-      },
-      {
-        "id": "dfd",
-        "mail": "dsdsds"
-      }
-    ]
-  },
-  "footer": {
-    "text": "ndfhdf",
-    "reight": "msdnfjjd"
-  }
-}
-
-
-
-
-
-
-{
-  "data": [
-      {
-        "image_path": "",
-        "id": "4094d3ca-393d-4227-bff5-9a2ae9c79a77",
-        "translations": [
-            {
-                "lang_id": "7a982366-ee48-4344-8c3b-33afea798205",
-                "title": {
-                    "title": "topics top title"
-                }
-            },
-            {
-                "lang_id": "e0b1effc-d822-47df-9ef7-34b239e6dc23",
-                "title": {
-                  "title": "topics top title"
-              }
-            }     
-        ]
-      },
-      {
-          "image_path": "upload\\topics\\0002_10-1.jpg",
-          "id": "3c939445-00b3-4394-8b0e-bc316f4859ec",
-          "translations": [
-              {
-                  "id": "fe3d626d-2743-4b2d-a8f6-ab43659d273a",
-                  "topic_id": "3c939445-00b3-4394-8b0e-bc316f4859ec",
-                  "lang_id": "7a982366-ee48-4344-8c3b-33afea798205",
-                  "title": {
-                      "title": "title_en_1"
-                  },
-                  "text": {
-                      "content": "content_en_1"
-                  }
-              },
-              {
-                  "id": "a0835898-723a-480a-bf63-d77d4da7ac37",
-                  "topic_id": "3c939445-00b3-4394-8b0e-bc316f4859ec",
-                  "lang_id": "e0b1effc-d822-47df-9ef7-34b239e6dc23",
-                  "title": {
-                      "title": "title_ru_1"
-                  },
-                  "text": {
-                      "content": "content_ru_1"
-                  }
-              }
-          ]
-      },
-      {
-          "image_path": "upload\\topics\\0002_10-1.jpg",
-          "id": "e9e900dd-2361-45e8-87da-11de27edcd70",
-          "translations": [
-              {
-                  "id": "883b5a58-ab92-448d-89ba-80b9bcb1ba80",
-                  "topic_id": "e9e900dd-2361-45e8-87da-11de27edcd70",
-                  "lang_id": "7a982366-ee48-4344-8c3b-33afea798205",
-                  "title": {
-                      "title": "title_en_2"
-                  },
-                  "text": {
-                      "content": "content_en_2"
-                  }
-              },
-              {
-                  "id": "9f04ed24-5273-4610-9e10-772e99f170ee",
-                  "topic_id": "e9e900dd-2361-45e8-87da-11de27edcd70",
-                  "lang_id": "e0b1effc-d822-47df-9ef7-34b239e6dc23",
-                  "title": {
-                      "title": "title_ru_2"
-                  },
-                  "text": {
-                      "content": "content_ru_2"
-                  }
-              }
-          ]
-      },
-      {
-          "image_path": "upload\\topics\\0002_10-1.jpg",
-          "id": "36bf0aff-9ef4-4118-a5ce-c3104ad20949",
-          "translations": [
-              {
-                  "id": "d844f6fe-6c6d-4ebc-984a-ce2de572a62f",
-                  "topic_id": "36bf0aff-9ef4-4118-a5ce-c3104ad20949",
-                  "lang_id": "7a982366-ee48-4344-8c3b-33afea798205",
-                  "title": {
-                      "title": "title_en_3"
-                  },
-                  "text": {
-                      "content": "content_en_3"
-                  }
-              },
-              {
-                  "id": "592fc97d-4d39-4080-ba75-4bd4b429fc88",
-                  "topic_id": "36bf0aff-9ef4-4118-a5ce-c3104ad20949",
-                  "lang_id": "e0b1effc-d822-47df-9ef7-34b239e6dc23",
-                  "title": {
-                      "title": "title_ru_3"
-                  },
-                  "text": {
-                      "content": "content_ru_3"
-                  }
-              }
-          ]
-      },
-      {
-          "image_path": "upload\\topics\\0002_10-1.jpg",
-          "id": "db752622-5d6a-4fc1-82b6-830b934c7108",
-          "translations": [
-              {
-                  "id": "e36ea1ff-bb8a-475e-8f8f-cdb4553aac89",
-                  "topic_id": "db752622-5d6a-4fc1-82b6-830b934c7108",
-                  "lang_id": "7a982366-ee48-4344-8c3b-33afea798205",
-                  "title": {
-                      "title": "title_en_4"
-                  },
-                  "text": {
-                      "content": "content_en_4"
-                  }
-              },
-              {
-                  "id": "8ba676e8-6a82-4c29-ad8e-c1fa24e421ac",
-                  "topic_id": "db752622-5d6a-4fc1-82b6-830b934c7108",
-                  "lang_id": "e0b1effc-d822-47df-9ef7-34b239e6dc23",
-                  "title": {
-                      "title": "title_ru_4"
-                  },
-                  "text": {
-                      "content": "content_ru_4"
-                  }
-              }
-          ]
-      },
-      {
-          "image_path": "upload\\topics\\0002_10-1.jpg",
-          "id": "9c4df3a0-a3b7-41dc-8e30-422a7492a13c",
-          "translations": [
-              {
-                  "id": "4094d3ca-393d-4227-bff5-9a2ae9c79a77",
-                  "topic_id": "9c4df3a0-a3b7-41dc-8e30-422a7492a13c",
-                  "lang_id": "7a982366-ee48-4344-8c3b-33afea798205",
-                  "title": {
-                      "title": "title_en_5"
-                  },
-                  "text": {
-                      "content": "content_en_5"
-                  }
-              },
-              {
-                  "id": "413384b5-3904-436e-86c7-f642b95ca1c7",
-                  "topic_id": "9c4df3a0-a3b7-41dc-8e30-422a7492a13c",
-                  "lang_id": "e0b1effc-d822-47df-9ef7-34b239e6dc23",
-                  "title": {
-                      "title": "title_ru_5"
-                  },
-                  "text": {
-                      "content": "content_ru_5"
-                  }
-              }
-          ]
-      }
-      
   ]
 }

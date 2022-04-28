@@ -273,7 +273,6 @@ const save_home = async (req, res) => {
     console.log(req.files);
     const section = req.params.section;
     const translations = JSON.parse(req.body.translations);
-    console.log(translations);
     const image = req.files ? req.files.image : null;
     const result = await adminQuery.q_save_home(translations, image, section);
     if (result != "false") {
