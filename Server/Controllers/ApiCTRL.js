@@ -13,6 +13,7 @@ const home = async (req, res) => {
         slider: result[1],
         map: result[2],
         statistics: result[3],
+        header_slider: result[4],
       });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
@@ -31,6 +32,7 @@ const about = async (req, res) => {
         data: result[0],
         images: result[1],
         image_path: result[2],
+        header_slider: result[3],
       });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
@@ -45,7 +47,7 @@ const product = async (req, res) => {
     const { lang } = req.params;
     const result = await apiQuery.get_product(lang);
     if (result != "false") {
-      res.status(status.OK).json({ data: result });
+      res.status(status.OK).json({ header_slider: result[1] });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
     }
@@ -59,7 +61,7 @@ const gallery = async (req, res) => {
     const lang = req.params;
     const result = await apiQuery.get_gallery(lang);
     if (result != "false") {
-      res.status(status.OK).json({ data: result });
+      res.status(status.OK).json({ data: result[0], header_slider: result[1] });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
     }
@@ -73,7 +75,7 @@ const contact = async (req, res) => {
     const { lang } = req.params;
     const result = await apiQuery.get_contact(lang);
     if (result != "false") {
-      res.status(status.OK).json({ data: result });
+      res.status(status.OK).json({ data: result[0], header_slider: result[1] });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
     }

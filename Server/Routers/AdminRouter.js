@@ -43,11 +43,11 @@ router.post("/save-about", AdminCRTL.save_about);
 router.get("/get-about-image", AdminCRTL.get_func);
 router.post("/save-about-image", AdminCRTL.save_about_image);
 
-//-------------product----------------------//
-router.get("/get-product", AdminCRTL.get_func);
-router.post("/add-product", AdminCRTL.add_product);
-router.post("/save-product", AdminCRTL.save_product);
-router.post("/delete-product", AdminCRTL.delete_product);
+// //-------------product----------------------//
+// router.get("/get-product", AdminCRTL.get_func);
+// router.post("/add-product", AdminCRTL.add_product);
+// router.post("/save-product", AdminCRTL.save_product);
+// router.post("/delete-product", AdminCRTL.delete_product);
 
 //-------------header----------------------//
 router.get("/get-header/:menu", AdminCRTL.get_func);

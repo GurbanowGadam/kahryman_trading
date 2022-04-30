@@ -33,11 +33,27 @@ const get_home = async (lang) => {
     );
     const res_statistics = await query(sql_statistics, []);
 
+    const sql_header = Q_Formatter(
+      ` SELECT
+          hi.id,
+          hi.image_path,
+          htt.small_text,
+          htt.text
+        FROM header_image as hi
+        inner join header_text_translation as htt
+        on htt.header_image_id = hi.id and htt.lang_id = (select id from languages where short_name = ?)
+        WHERE hi.menu = 'home';
+    ;`,
+      [lang]
+    );
+    const res_header = await query(sql_header, []);
+
     return [
       res_faciliti.rows[0],
       res_slider.rows,
       res_agens.rows[0],
       res_statistics.rows,
+      res_header.rows,
     ];
   } catch (err) {
     console.log(err);
@@ -66,7 +82,27 @@ const get_about = async (lang) => {
     );
     const res_image_path = await query(sql_image_path, []);
 
-    return [res.rows[0], res_image.rows, res_image_path.rows[0]];
+    const sql_header = Q_Formatter(
+      ` SELECT
+          hi.id,
+          hi.image_path,
+          htt.small_text,
+          htt.text
+        FROM header_image as hi
+        inner join header_text_translation as htt
+        on htt.header_image_id = hi.id and htt.lang_id = (select id from languages where short_name = ?)
+        WHERE hi.menu = 'about';
+    ;`,
+      [lang]
+    );
+    const res_header = await query(sql_header, []);
+
+    return [
+      res.rows[0],
+      res_image.rows,
+      res_image_path.rows[0],
+      res_header.rows,
+    ];
   } catch (err) {
     console.log(err);
     return "false";
@@ -83,7 +119,22 @@ const get_product = async (lang) => {
     );
     const res = await query(sql, []);
 
-    return res.rows;
+    const sql_header = Q_Formatter(
+      ` SELECT
+          hi.id,
+          hi.image_path,
+          htt.small_text,
+          htt.text
+        FROM header_image as hi
+        inner join header_text_translation as htt
+        on htt.header_image_id = hi.id and htt.lang_id = (select id from languages where short_name = ?)
+        WHERE hi.menu = 'product';
+    ;`,
+      [lang]
+    );
+    const res_header = await query(sql_header, []);
+
+    return [res.rows, res_header.rows];
   } catch (err) {
     console.log(err);
     return "false";
@@ -96,7 +147,21 @@ const get_gallery = async (lang) => {
       select * from gallery;`);
     const res = await query(sql, []);
 
-    return res.rows;
+    const sql_header = Q_Formatter(
+      ` SELECT
+            hi.id,
+            hi.image_path,
+            htt.small_text,
+            htt.text
+          FROM header_image as hi
+          inner join header_text_translation as htt
+          on htt.header_image_id = hi.id and htt.lang_id = (select id from languages where short_name = 'en')
+          WHERE hi.menu = 'gallery';
+    ;`,
+      [lang]
+    );
+    const res_header = await query(sql_header, []);
+    return [res.rows, res_header.rows];
   } catch (err) {
     console.log(err);
     return "false";
@@ -127,7 +192,22 @@ const get_contact = async (lang) => {
     );
     const res = await query(sql, []);
 
-    return res.rows[0];
+    const sql_header = Q_Formatter(
+      ` SELECT
+          hi.id,
+          hi.image_path,
+          htt.small_text,
+          htt.text
+        FROM header_image as hi
+        inner join header_text_translation as htt
+        on htt.header_image_id = hi.id and htt.lang_id = (select id from languages where short_name = ?)
+        WHERE hi.menu = 'contact';
+    ;`,
+      [lang, lang]
+    );
+
+    const res_header = await query(sql_header, []);
+    return [res.rows[0], res_header.rows];
   } catch (err) {
     return "false";
   }
@@ -230,7 +310,7 @@ const get_header = async (lang, menu) => {
     );
     const res_header = await query(sql_header, []);
 
-    return res_header.rows;
+    return res_header.rows[0];
   } catch (err) {
     console.log(err);
     return "false";

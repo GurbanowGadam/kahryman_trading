@@ -12,12 +12,18 @@ const q_get_gallery = async (type) => {
         [type]
       );
       var res = await query(sql, []);
+      if (res.rows[0] == null) {
+        res.rows[0] = { id: "", video_path: "", type: "video", image_path: "" };
+      }
     } else {
       const sql = Q_Formatter(
         `SELECT id, gallery_path as image_path, type FROM gallery where type = ?;`,
         [type]
       );
       var res = await query(sql, []);
+      if (res.rows[0] == null) {
+        res.rows[0] = { id: "", image_path: "", type: "image" };
+      }
     }
     return res.rows;
   } catch (err) {
@@ -203,17 +209,37 @@ const q_get_footer = async (section) => {
         SELECT address.id,
             (SELECT json_agg(at.*) as translations FROM at WHERE at.address_id = address.id) 
             FROM address;`);
-        var res = await query(sql, []);
+        const res = await query(sql, []);
+        const res_lang = await query(`select * from languages;`);
+        if (res.rows[0] == null) {
+          res.rows[0] = {
+            id: "",
+            translations: [
+              {
+                id: "",
+                lang_id: res_lang.rows[0].id,
+                address_id: "",
+                title: { address: "" },
+              },
+            ],
+          };
+        }
         return res.rows;
       }
       case "mail": {
         const sql = `select * from mails;`;
         var res = await query(sql, []);
+        if (res.rows[0] == null) {
+          res.rows[0] = { id: "", mail: "" };
+        }
         return res.rows;
       }
       case "phone": {
         const sql = Q_Formatter(`select * from phone_numbers;`);
         var res = await query(sql, []);
+        if (res.rows[0] == null) {
+          res.rows[0] = { id: "", number: "" };
+        }
         return res.rows;
       }
       default:
@@ -270,6 +296,7 @@ const q_add_footer = async (params, section) => {
       }
       case "phone": {
         try {
+          console.log(params.number);
           const sql = Q_Formatter(
             `INSERT INTO phone_numbers(number) VALUES(?) RETURNING *;`,
             [params.number]
@@ -1036,6 +1063,21 @@ const q_get_product = async () => {
         (SELECT json_agg(pt.*) as translations FROM pt WHERE pt.product_id = products.id) 
         FROM products;`);
     const res = await query(sql, []);
+    const res_lang = await query(`select * from languages;`, []);
+    if (res.rows[0] == null) {
+      res.rows[0] = {
+        id: "",
+        image_path: "",
+        translations: [
+          {
+            id: "",
+            lang_id: res_lang.rows[0].id,
+            product_id: "",
+            title: { name: "", button_text: "" },
+          },
+        ],
+      };
+    }
     return res.rows;
   } catch (err) {
     console.log(err);
