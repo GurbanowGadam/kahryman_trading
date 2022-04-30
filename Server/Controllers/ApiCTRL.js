@@ -9,12 +9,10 @@ const home = async (req, res) => {
     const result = await apiQuery.get_home(lang);
     if (result != "false") {
       res.status(status.OK).json({
-        header: result[0],
-        strategy: result[1],
-        slider: result[2],
-        map: result[3],
-        statistics: result[4],
-        footer: result[5],
+        strategy: result[0],
+        slider: result[1],
+        map: result[2],
+        statistics: result[3],
       });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
@@ -32,8 +30,7 @@ const about = async (req, res) => {
       res.status(status.OK).json({
         data: result[0],
         images: result[1],
-        header: result[2],
-        footer: result[3],
+        image_path: result[2],
       });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
@@ -48,9 +45,7 @@ const product = async (req, res) => {
     const { lang } = req.params;
     const result = await apiQuery.get_product(lang);
     if (result != "false") {
-      res
-        .status(status.OK)
-        .json({ data: result[0], header: result[1], footer: result[2] });
+      res.status(status.OK).json({ data: result });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
     }
@@ -64,9 +59,7 @@ const gallery = async (req, res) => {
     const lang = req.params;
     const result = await apiQuery.get_gallery(lang);
     if (result != "false") {
-      res
-        .status(status.OK)
-        .json({ data: result[0], header: result[1], footer: result[2] });
+      res.status(status.OK).json({ data: result });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
     }
@@ -80,9 +73,7 @@ const contact = async (req, res) => {
     const { lang } = req.params;
     const result = await apiQuery.get_contact(lang);
     if (result != "false") {
-      res
-        .status(status.OK)
-        .json({ data: result[0], header: result[1], footer: result[2] });
+      res.status(status.OK).json({ data: result });
     } else {
       res.status(status.ERROR).json({ msg: "query error" });
     }
@@ -138,6 +129,7 @@ const send_email = async (req, res) => {
        <h1> Mail details </h1>
         
       <p> Name:${req.body.name} </p>
+      <p> Company name:${req.body.companyName} </p>
       <p> Email:${req.body.email} </p>
       <p> Subject:${req.body.subject} </p>
         
@@ -172,7 +164,7 @@ const send_email = async (req, res) => {
         // Preview only available when sending through an Ethereal account
         console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
         // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
-        res.status(200).json({ msg: "successfull!" });
+        res.status(status.OK).json({ status: true, msg: "successfull!" });
       }
 
       main().catch((err) => {

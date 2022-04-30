@@ -3,10 +3,10 @@ const status = require("./../Utilis/status");
 
 const login_check_token = async (req, res, next) => {
   try {
-    const token_bearer = req.headers["authorization"]; //tokenin ozunde bearer bolany ucin sondan sonyny bolup alyas
-    console.log(token_bearer);
-    const token = token_bearer.substring(7);
-    if (token != undefined) {
+    const token_bearer = req.headers["authorization"]; //tokenin onunde bearer bolany ucin sondan sonyny bolup alyas
+
+    if (token_bearer != undefined) {
+      const token = token_bearer.substring(7);
       jwt.verify(token, process.env.TOKEN_KEY, (error) => {
         if (!error) {
           console.log("Token dogry");

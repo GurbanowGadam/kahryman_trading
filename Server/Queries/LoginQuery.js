@@ -9,7 +9,6 @@ const login_admin = async (params) => {
       params[0],
     ]);
     const { rows } = await query(sql, []);
-    console.log(rows);
     const result = await bcrypt.compare(params[1], rows[0].password);
     if (rows[0] && rows[0].id && result) {
       admin_token = jwt.sign({ id: rows[0].id }, process.env.TOKEN_KEY, {
