@@ -84,6 +84,35 @@ const contact = async (req, res) => {
   }
 };
 
+const header = async (req, res) => {
+  try {
+    const { lang, menu } = req.params;
+    const result = await apiQuery.get_header(lang, menu);
+    if (result != "false") {
+      res.status(status.OK).json({ data: result });
+    } else {
+      res.status(status.ERROR).json({ msg: "query error" });
+    }
+  } catch (err) {
+    res.status(status.ERROR).json({ msg: err.message });
+  }
+};
+
+const footer = async (req, res) => {
+  try {
+    const { lang } = req.params;
+    const result = await apiQuery.get_footer(lang);
+    if (result != "false") {
+      res.status(status.OK).json({ data: result });
+    } else {
+      res.status(status.ERROR).json({ msg: "query error" });
+    }
+  } catch (err) {
+    res.status(status.ERROR).json({ msg: err.message });
+  }
+};
+
+//topics
 const topic_s = async (req, res, next) => {
   try {
     const { data_s } = require("../../Server/Functions/sorce");
@@ -179,34 +208,6 @@ const send_email = async (req, res) => {
     }
   } catch (err) {
     console.log(err);
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
-const header = async (req, res) => {
-  try {
-    const { lang, menu } = req.params;
-    const result = await apiQuery.get_header(lang, menu);
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
-    res.status(status.ERROR).json({ msg: err.message });
-  }
-};
-
-const footer = async (req, res) => {
-  try {
-    const { lang } = req.params;
-    const result = await apiQuery.get_footer(lang);
-    if (result != "false") {
-      res.status(status.OK).json({ data: result });
-    } else {
-      res.status(status.ERROR).json({ msg: "query error" });
-    }
-  } catch (err) {
     res.status(status.ERROR).json({ msg: err.message });
   }
 };
