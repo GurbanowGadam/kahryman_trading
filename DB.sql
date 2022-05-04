@@ -465,15 +465,8 @@ COPY public.footer (id, lang_id, text, bottum_title, created_at) FROM stdin;
 --
 
 COPY public.gallery (id, gallery_path, type, created_at, image_path) FROM stdin;
-5775a974-7507-4292-86cd-8555690367d5	api/upload/gallery/1651672553849	image	2022-05-04 16:55:54.251648+03	\N
-2e3221c2-ecd0-4997-b631-de04d6ef9296	api/upload/gallery/1651672559193	image	2022-05-04 16:55:59.207111+03	\N
-5c9f0f77-a5df-46d5-9e4d-ad7e76c9d2e6	api/upload/gallery/1651672563249	image	2022-05-04 16:56:03.26332+03	\N
-a60dc70e-1159-4bbd-992e-ec083cebce97	api/upload/gallery/1651672567375	image	2022-05-04 16:56:07.414467+03	\N
-74d36702-989d-4506-9558-faffdd78477a	api/upload/gallery/1651672572139	image	2022-05-04 16:56:12.154212+03	\N
-aa08467d-8dc4-458d-bd8f-d1345f734d1e	api/upload/gallery/1651672575912	image	2022-05-04 16:56:15.935904+03	\N
-a75afb2d-8d4e-48b6-a2c4-5963ddb7ee25	api/upload/gallery/1651672579908	image	2022-05-04 16:56:19.931218+03	\N
-e6c33315-a12a-4465-aed1-d6e0cfd3458b	api/upload/gallery/1651672583994	image	2022-05-04 16:56:24.01696+03	\N
-fe0b3096-335f-4b66-8a9a-14c5a5512fe3	api/upload/gallery/1651672762331.mp4	video	2022-05-04 16:59:23.065953+03	api/upload/gallery/1651672762782
+31b21d23-2545-4775-8456-673cef65b226	api/upload/gallery/1651679573915.mp4	video	2022-05-04 18:37:57.692155+03	api/upload/gallery/1651679573935
+9895c2c9-7e3d-4ebe-87c8-c7d5812aa17b	api/upload/gallery/1651679618024	image	2022-05-04 18:32:54.55256+03	\N
 \.
 
 

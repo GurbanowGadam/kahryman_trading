@@ -54,7 +54,8 @@ const DeleteImage = (image_path) => {
 
 const DeleteVideo = (video_path) => {
   var pwd = process.cwd();
-  DeleteFile(pwd + video_path + ".mp4");
+  const video_path_del = video_path.substring(4) + ".mp4";
+  DeleteFile(pwd + video_path_del);
   console.log("DELETE video");
 };
 
