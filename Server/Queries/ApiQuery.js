@@ -223,62 +223,34 @@ const topics = async (data, lang) => {
     const sql_2 = Q_Formatter(`select * from topics;`);
     const res_2 = await query(sql_2, []);
     //1
-    const image_path_1 = res_2.rows[0].image_path;
-    const upload_1 = image_path_1.substring(0, 6);
-    const topics_1 = image_path_1.substring(7, 13);
-    const image_1 = image_path_1.substring(14);
-    const new_image_path_1 =
-      upload_1 + "/" + topics_1 + "/" + image_1 + "-1000.jpg";
     data.articles[0].attachments.linkedin_embed.post.message =
       res.rows[0].content;
     data.articles[0].attachments.linkedin_embed.user.name = res.rows[0].title;
     data.articles[0].attachments.linkedin_embed.post.images[0].image_url =
-      new_image_path_1;
+      res_2.rows[0].image_path + ".jpg";
     //2
-    const image_path_2 = res_2.rows[1].image_path;
-    const upload_2 = image_path_2.substring(0, 6);
-    const topics_2 = image_path_2.substring(7, 13);
-    const image_2 = image_path_2.substring(14);
-    const new_image_path_2 =
-      upload_2 + "/" + topics_2 + "/" + image_2 + "-1000.jpg";
     data.articles[1].body = res.rows[1].content;
     data.articles[1].title = res.rows[1].title;
-    data.articles[1].cover_url = new_image_path_2;
+    data.articles[1].cover_url = res_2.rows[1].image_path + ".jpg";
 
     //3
-    const image_path_3 = res_2.rows[2].image_path;
-    const upload_3 = image_path_3.substring(0, 6);
-    const topics_3 = image_path_3.substring(7, 13);
-    const image_3 = image_path_3.substring(14);
-    const new_image_path_3 =
-      upload_3 + "/" + topics_3 + "/" + image_3 + "-1000.jpg";
     data.articles[2].attachments.facebook_post.message = res.rows[2].content;
     data.articles[2].attachments.facebook_post.from_name = res.rows[2].title;
-    data.articles[2].attachments.facebook_post.picture = new_image_path_3;
+    data.articles[2].attachments.facebook_post.picture =
+      res_2.rows[2].image_path + ".jpg";
 
     //4
-    const image_path_4 = res_2.rows[3].image_path;
-    const upload_4 = image_path_4.substring(0, 6);
-    const topics_4 = image_path_4.substring(7, 13);
-    const image_4 = image_path_4.substring(14);
-    const new_image_path_4 = upload_4 + "/" + topics_4 + "/" + image_4;
     data.articles[3].attachments.facebook_post.message = res.rows[3].content;
     data.articles[3].attachments.facebook_post.from_name = res.rows[3].title;
     data.articles[3].attachments.facebook_post.picture =
-      new_image_path_4 + "-1000.jpg";
+      res_2.rows[3].image_path + ".jpg";
 
     //5
-    const image_path_5 = res_2.rows[4].image_path;
-    const upload_5 = image_path_5.substring(0, 6);
-    const topics_5 = image_path_5.substring(7, 13);
-    const image_5 = image_path_5.substring(14);
-    const new_image_path_5 =
-      upload_5 + "/" + topics_5 + "/" + image_5 + "-1000.jpg";
     data.articles[4].attachments.linkedin_embed.post.message =
       res.rows[4].content;
     data.articles[4].attachments.linkedin_embed.user.name = res.rows[4].title;
     data.articles[4].attachments.linkedin_embed.post.images[0].image_url =
-      new_image_path_5;
+      res_2.rows[4].image_path + ".jpg";
 
     return data;
   } catch (err) {

@@ -4,6 +4,7 @@ const adminQuery = require("./../Queries/AdminQuery");
 //-----------gallery--------------//
 const add_gallery = async (req, res) => {
   try {
+    console.log("req = >", req.files);
     const gallery = (await req.files) ? req.files.video : null;
     const image = (await req.files) ? req.files.image : null;
     const result = await adminQuery.q_add_gallery(gallery, image);

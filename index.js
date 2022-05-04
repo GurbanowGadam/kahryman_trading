@@ -30,7 +30,7 @@ app.use(cors(corsConfig));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use("/upload", express.static(path.join(__dirname, "upload")));
+app.use("/api/upload", express.static(path.join(__dirname, "upload")));
 
 app.listen(process.env.PORT, () => {
   console.log("listening => ", process.env.PORT);

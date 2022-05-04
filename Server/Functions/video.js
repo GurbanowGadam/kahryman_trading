@@ -45,7 +45,7 @@ const videUploadMV = async (video, folder_name) => {
           console.log("false");
           resolve(false);
         } else {
-          resolve("upload/" + folder_name + "/" + timePath + ".mp4");
+          resolve("api/upload/" + folder_name + "/" + timePath + ".mp4");
           console.log("TRUE");
           console.log(pathMV);
         }

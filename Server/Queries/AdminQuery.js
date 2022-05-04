@@ -296,7 +296,6 @@ const q_add_footer = async (params, section) => {
       }
       case "phone": {
         try {
-          console.log(params.number);
           const sql = Q_Formatter(
             `INSERT INTO phone_numbers(number) VALUES(?) RETURNING *;`,
             [params.number]
