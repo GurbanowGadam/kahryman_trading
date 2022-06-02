@@ -212,6 +212,69 @@ const send_email = async (req, res) => {
   }
 };
 
+
+const send_email_himiya = async (req, res) => {
+  try {
+    const email = validator.isEmail(req.body.email);
+
+    if (email) {
+      let outputhtml = `
+       <h1> Mail details </h1>
+        
+      <p> Name:${req.body.name} </p>
+      <p> Email:${req.body.email} </p>
+        
+      <h> MESSAGE </h>
+      <p> ${req.body.message} </p>`;
+
+      async function main() {
+        // create reusable transporter object using the default SMTP transport
+        let transporter = nodemailer.createTransport({
+          host: process.env.MAIL_HOST_HIMYA,
+          port: process.env.MAIL_PORT_HIMYA,
+          secure: true,
+          // service: 'gmail.com',
+          auth: {
+            user: process.env.MAIL_USERNAME_HIMYA, // generated ethereal user
+            pass: process.env.MAIL_PASSWORD_HIMYA, // generated ethereal password
+          },
+        });
+        console.log("MAILL");
+        // send mail with defined transport object
+        let info = await transporter.sendMail({
+          from: process.env.MAIL_FROM_ADDRESS_HIMYA,
+          to: process.env.MAIL_FROM_ADDRESS_HIMYA,
+          subject: process.env.MAIL_SUBJECT_HIMYA,
+          text: outputhtml,
+          html: outputhtml,
+        });
+
+        console.log("Message sent: %s", info.messageId);
+        // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+        // Preview only available when sending through an Ethereal account
+        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+        // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+        res.status(status.OK).json({ status: true, msg: "successfull!" });
+      }
+
+      main().catch((err) => {
+        console.log(err);
+        res.status(status.OK).json({ msg: err.message });
+      });
+    } else {
+      console.log("email not correct");
+      res.status(status.ERROR).json({ msg: "email not correct" });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(status.ERROR).json({ msg: err.message });
+  }
+};
+
+
+
+
 module.exports = {
   home,
   about,
@@ -226,4 +289,6 @@ module.exports = {
   send_email,
   header,
   footer,
+
+  send_email_himiya
 };
